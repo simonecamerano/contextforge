@@ -2,7 +2,7 @@
 
 - **Project Name:** contextforge
 - **Version:** 0.1.0
-- **Languages:** JavaScript, JSON, TypeScript, Text
+- **Languages:** Markdown, JavaScript, JSON, TypeScript
 
 ## Scripts
 
@@ -24,9 +24,11 @@
 
 ### Dev Dependencies
 
+- `@eslint/js`: `^10.0.1`
 - `@types/node`: `^20.12.12`
 - `eslint`: `^10.4.0`
 - `eslint-config-prettier`: `^10.1.8`
+- `globals`: `^17.6.0`
 - `prettier`: `^3.8.3`
 - `tsup`: `^8.1.0`
 - `typescript`: `^5.4.5`

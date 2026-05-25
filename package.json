@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Local-first codebase context management and memory engine for developers and AI agents.",
   "type": "module",
-  "main": "dist/cli/index.js",
+  "main": "dist/index.js",
   "bin": {
-    "contextforge": "./dist/cli/index.js"
+    "contextforge": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup",
