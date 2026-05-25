@@ -7,6 +7,28 @@
   "bin": {
     "contextforge": "./dist/index.js"
   },
+  "author": "Simone <https://github.com/Galdrial>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Galdrial/contextforge.git"
+  },
+  "homepage": "https://github.com/Galdrial/contextforge#readme",
+  "keywords": [
+    "cli",
+    "ai",
+    "context",
+    "llm",
+    "codebase",
+    "memory",
+    "developer-tools",
+    "local-first",
+    "ollama",
+    "deepseek"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
