@@ -27,7 +27,7 @@ export class IgnoreEngine {
     // The `ignore` package ships both CJS and ESM builds; the factory
     // function may therefore appear on the module's default export rather
     // than as the module itself — guard against both shapes.
-    const ignoreFactory = typeof ignore === 'function' ? ignore : (ignore as any).default;
+    const ignoreFactory = typeof ignore === 'function' ? ignore : (ignore as Record<string, unknown>).default as () => Ignore;
     this.ig = ignoreFactory();
 
     // Always skip these directories/files regardless of any ignore file.
