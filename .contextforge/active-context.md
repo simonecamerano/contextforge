@@ -6,6 +6,7 @@
 
 ## Ultimi 10 Commit
 
+- `591e289 feat: implement ask and brief commands and update project documentation and configuration`
 - `4c4e563 feat: add .env.example template for LLM provider configuration`
 - `6849be3 chore: disable explicit-any in tests and add type safety to ignore-engine factory invocation`
 - `f7fbe8d feat: add comprehensive unit testing suite, update ESLint configuration, and improve core scan/update logic`
