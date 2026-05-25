@@ -41,7 +41,7 @@ export function registerInitCommand(program: Command) {
         const ignoreLine = '.contextforge/local/';
 
         if (fs.existsSync(gitignorePath)) {
-          let content = fs.readFileSync(gitignorePath, 'utf8');
+          const content = fs.readFileSync(gitignorePath, 'utf8');
           if (!content.includes(ignoreLine)) {
             const separator = content.endsWith('\n') ? '' : '\n';
             fs.writeFileSync(gitignorePath, `${content}${separator}${ignoreLine}\n`, 'utf8');

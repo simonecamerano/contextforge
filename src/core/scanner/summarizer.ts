@@ -99,7 +99,7 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
       const lines = content.split('\n');
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        const todoMatch = line.match(/(?:\/\/\/|\/\/|#)\s*(TODO|FIXME)\s*[:\-]?\s*(.+)/i);
+        const todoMatch = line.match(/(?:\/\/\/|\/\/|#)\s*(TODO|FIXME)\s*[:-]?\s*(.+)/i);
         if (todoMatch) {
           summary.todos.push({
             file,
