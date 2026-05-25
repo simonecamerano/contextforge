@@ -4,6 +4,8 @@
 
 > **Local-first project memory engine for developers and AI agents.**
 
+![ContextForge demo](./demo.gif)
+
 ContextForge scans your codebase and builds a structured, version-controlled memory layer — a set of Markdown documents in `.contextforge/` — that captures your project's architecture, active context, technical decisions, and open questions. This memory can be queried directly from the terminal or used as a precise context window when prompting an LLM.
 
 ```
@@ -14,6 +16,7 @@ contextforge ask "how is authentication handled?"
 ```
 
 ---
+
 
 ## Table of Contents
 
