@@ -3,6 +3,8 @@ import { registerInitCommand } from './commands/init.js';
 import { registerScanCommand } from './commands/scan.js';
 import { registerDecisionsCommand } from './commands/decisions.js';
 import { registerUpdateCommand } from './commands/update.js';
+import { registerBriefCommand } from './commands/brief.js';
+import { registerAskCommand } from './commands/ask.js';
 
 const program = new Command();
 
@@ -15,7 +17,7 @@ registerInitCommand(program);
 registerScanCommand(program);
 registerDecisionsCommand(program);
 registerUpdateCommand(program);
-
-// TODO: implementare i comandi per decisions, update, ask e brief
+registerBriefCommand(program);
+registerAskCommand(program);
 
 program.parse(process.argv);
