@@ -6,11 +6,14 @@ import { walkDirectory } from '../../core/scanner/file-walker.js';
 import { summarizeProject } from '../../core/scanner/summarizer.js';
 import { detectChanges } from '../../core/updater/change-detector.js';
 import { selectiveUpdate } from '../../core/updater/selective-update.js';
+import { computeCompressionStats } from '../../core/stats/compression-stats.js';
 
 interface Meta {
   version: string;
   lastScan: string;
   fileHashes: Record<string, string>;
+  currentStats?: { rawChars: number; forgedChars: number; compressionRatio: number };
+  lifetimeStats?: { totalRawCharsProcessed: number; totalForgedCharsOutput: number };
 }
 
 export function registerUpdateCommand(program: Command) {
@@ -56,14 +59,23 @@ export function registerUpdateCommand(program: Command) {
         const summary = await summarizeProject(files, cwd);
         await selectiveUpdate(changed, summary, contextForgeDir);
 
+        const currentStats = computeCompressionStats(files, contextForgeDir);
+        const lifetimeStats = {
+          totalRawCharsProcessed: (meta.lifetimeStats?.totalRawCharsProcessed ?? 0) + currentStats.rawChars,
+          totalForgedCharsOutput: (meta.lifetimeStats?.totalForgedCharsOutput ?? 0) + currentStats.forgedChars,
+        };
+
         const updatedMeta: Meta = {
           version: meta.version,
           lastScan: new Date().toISOString(),
           fileHashes: changed.newHashes,
+          currentStats,
+          lifetimeStats,
         };
 
         fs.writeFileSync(metaPath, JSON.stringify(updatedMeta, null, 2), 'utf8');
         console.log('Updated: .contextforge/local/meta.json');
+        console.log(`Compression ratio: ${currentStats.compressionRatio}% (${(currentStats.rawChars / 1024).toFixed(1)} KB raw → ${(currentStats.forgedChars / 1024).toFixed(1)} KB forged)`);
 
         console.log('\nUpdate completed successfully!');
       } catch (error) {

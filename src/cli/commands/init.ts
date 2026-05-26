@@ -1,8 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import readline from 'node:readline';
 import { execSync } from 'node:child_process';
 import { Command } from 'commander';
 import { runScan } from './scan.js';
+
+function ask(question: string): Promise<string> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise(resolve => {
+    rl.question(question, answer => {
+      rl.close();
+      resolve(answer);
+    });
+  });
+}
 
 const DEFAULT_SCELTA_MODELLO_TEMPLATE = `---
 trigger: always_on
@@ -195,6 +206,36 @@ export function registerInitCommand(program: Command) {
       if (fs.existsSync(contextForgeDir)) {
         console.warn('Warning: The .contextforge folder already exists in this repository.');
         return;
+      }
+
+      const envPath = path.join(cwd, '.env');
+      if (!fs.existsSync(envPath)) {
+        const providerChoice = await ask(
+          `\nWhich LLM provider do you want to use for this project?\n  1) DeepSeek (Cloud API)\n  2) Ollama (Local)\n  3) Offline (none)\nEnter choice [1/2/3]: `
+        );
+
+        switch (providerChoice.trim()) {
+          case '1': {
+            const apiKey = await ask('Enter your DeepSeek API key: ');
+            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=deepseek\nDEEPSEEK_API_KEY=${apiKey}\nDEEPSEEK_MODEL=deepseek-chat\n`, 'utf8');
+            console.log('LLM Provider configured: DeepSeek.');
+            break;
+          }
+          case '2':
+            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=ollama\nOLLAMA_HOST=http://localhost:11434\nOLLAMA_MODEL=llama3\n`, 'utf8');
+            console.log('LLM Provider configured: Ollama.');
+            break;
+          case '3':
+            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
+            console.log('LLM Provider configured: Offline.');
+            break;
+          default:
+            console.log('Invalid choice. Defaulting to Offline.');
+            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
+            console.log('LLM Provider configured: Offline.');
+        }
+      } else {
+        console.log('Skipping .env creation — file already exists.');
       }
 
       try {

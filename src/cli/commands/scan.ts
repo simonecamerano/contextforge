@@ -8,6 +8,15 @@ import { summarizeProject } from '../../core/scanner/summarizer.js';
 import { generateProjectOverview } from '../../core/generators/project-overview.js';
 import { generateArchitecture } from '../../core/generators/architecture.js';
 import { generateActiveContext } from '../../core/generators/active-context.js';
+import { computeCompressionStats } from '../../core/stats/compression-stats.js';
+
+interface Meta {
+  version: string;
+  lastScan: string;
+  fileHashes: Record<string, string>;
+  currentStats: { rawChars: number; forgedChars: number; compressionRatio: number };
+  lifetimeStats: { totalRawCharsProcessed: number; totalForgedCharsOutput: number };
+}
 
 export async function runScan(cwd: string): Promise<void> {
   const contextForgeDir = path.join(cwd, '.contextforge');
@@ -52,10 +61,18 @@ export async function runScan(cwd: string): Promise<void> {
       }
     }
 
-    const meta = {
+    const currentStats = computeCompressionStats(files, contextForgeDir);
+    const lifetimeStats = {
+      totalRawCharsProcessed: currentStats.rawChars,
+      totalForgedCharsOutput: currentStats.forgedChars,
+    };
+
+    const meta: Meta = {
       version: '0.1.0',
       lastScan: new Date().toISOString(),
-      fileHashes
+      fileHashes,
+      currentStats,
+      lifetimeStats,
     };
 
     fs.writeFileSync(
@@ -64,6 +81,7 @@ export async function runScan(cwd: string): Promise<void> {
       'utf8'
     );
     console.log('Updated: .contextforge/local/meta.json');
+    console.log(`Compression ratio: ${currentStats.compressionRatio}% (${(currentStats.rawChars / 1024).toFixed(1)} KB raw → ${(currentStats.forgedChars / 1024).toFixed(1)} KB forged)`);
     
     console.log('\nScan completed successfully!');
   } catch (error) {
