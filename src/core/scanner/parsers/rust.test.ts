@@ -47,6 +47,12 @@ describe('parseRust', () => {
       expect(result.classes[0].methods).toEqual(['start', 'stop']);
       expect(result.functions).not.toContain('start');
     });
+
+    it('parses a method from an impl block declared before its struct', async () => {
+      const code = 'impl Server {\n    pub fn start(&self) {}\n}\npub struct Server {}';
+      const result = await parseRust(FILE, code);
+      expect(result.classes[0].methods).toContain('start');
+    });
   });
 
   describe('pub fn top-level functions', () => {

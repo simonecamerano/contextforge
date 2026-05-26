@@ -15,11 +15,30 @@ export async function parseRust(_filePath: string, content: string): Promise<Rus
     const classes: RustResult['classes'] = [];
     const functions: string[] = [];
 
-    let currentImpl: string | null = null;
+    const lines = content.split('\n');
 
-    for (const line of content.split('\n')) {
+    // Pass 1: collect all struct/enum declarations so impl blocks can be matched
+    // regardless of declaration order within the file.
+    for (const line of lines) {
       const trimmed = line.trim();
       const isIndented = line.startsWith(' ') || line.startsWith('\t');
+      const structMatch = trimmed.match(/^(pub\s+)?(?:struct|enum)\s+(\w+)/);
+      if (structMatch && !isIndented) {
+        const name = structMatch[2];
+        classes.push({ name, methods: [] });
+        if (structMatch[1]) exports.push(name);
+      }
+    }
+
+    // Pass 2: collect imports, impl methods, and top-level pub fns.
+    let currentImpl: string | null = null;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const isIndented = line.startsWith(' ') || line.startsWith('\t');
+
+      // Skip struct/enum — already collected in pass 1.
+      if (trimmed.match(/^(?:pub\s+)?(?:struct|enum)\s+\w+/)) continue;
 
       // Grouped use: `use a::b::{X, Y};`
       const useGrouped = trimmed.match(/^use\s+([\w:]+)::\{([^}]+)\};/);
@@ -39,15 +58,6 @@ export async function parseRust(_filePath: string, content: string): Promise<Rus
         continue;
       }
 
-      // pub struct / pub enum (with optional `pub`)
-      const structMatch = trimmed.match(/^(pub\s+)?(?:struct|enum)\s+(\w+)/);
-      if (structMatch && !isIndented) {
-        const name = structMatch[2];
-        classes.push({ name, methods: [] });
-        if (structMatch[1]) exports.push(name);
-        continue;
-      }
-
       // impl block: `impl Server { ... }` or `impl<T> Server { ... }`
       const implMatch = trimmed.match(/^impl(?:<[^>]*>)?\s+(\w+)/);
       if (implMatch && !isIndented) {
@@ -55,7 +65,7 @@ export async function parseRust(_filePath: string, content: string): Promise<Rus
         continue;
       }
 
-      // pub fn (or private fn — only pub goes to exports/functions)
+      // pub fn (or private fn — only pub goes to exports/functions/methods)
       const fnMatch = trimmed.match(/^(pub\s+)?(?:async\s+)?fn\s+(\w+)/);
       if (fnMatch) {
         const isPub = !!fnMatch[1];
