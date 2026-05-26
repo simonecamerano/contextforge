@@ -2,27 +2,25 @@
 
 ## Git Status
 
-- **Branch Corrente:** `main`
+- **Current Branch:** `main`
 
-## Ultimi 10 Commit
+## Recent 10 Commits
 
-- `0b7d5a3 chore: translate all CLI output messages, error messages, and templates to English`
-- `f9bc92f chore: enforce English-only rule for all code, comments, and CLI output`
-- `ea1db45 refactor: translate code comments from Italian to English across core and CLI modules`
-- `d270eb0 feat: add demonstration video to project documentation`
-- `f9fc9d8 feat: add animated demo GIF to README`
-- `86b4e07 docs: add CI badge to README and exclude demo artifacts from git`
-- `be787a6 ci: add GitHub Actions workflow for Node 18/20/22`
-- `2e3dd6f chore: add MIT license, complete package.json metadata, and reset generated context files`
-- `4e154ab docs: add latest commit reference to active-context.md`
-- `591e289 feat: implement ask and brief commands and update project documentation and configuration`
+- `c8ff40b refactor: add missing block scopes to init command switch cases and update dependencies`
+- `b5eac1f feat: add LLM provider configuration to init and track compression statistics in scan and update commands`
+- `4925b62 refactor: remove token budget constraints and automatic truncation logic from AI brief generation`
+- `d1225b6 fix: update CLI init command rules template to include strict model delegation rule`
+- `40badc0 fix: escape backticks in the template string in init.ts to fix syntax error`
+- `566246a fix: resolve unused variable warning in catch block by using optional catch binding`
+- `82b8aad docs: update README with Agentic AI Integration and Roadmap`
+- `73256ea fix: remove unnecessary escape characters from double quotes in template string`
+- `c1d13b2 feat: automate local git init, agent rules scaffolding, and initial scan during contextforge init`
+- `f3953fc refactor: translate all generated Markdown documentation and test strings from Italian to English`
 
-## Attività e Task nel Codice (TODO / FIXME)
+## Active Tasks in Code (TODO / FIXME)
 
-| File | Linea | Tipo | Messaggio |
+| File | Line | Type | Message |
 |---|---|---|---|
-| [src/core/generators/ai-brief.ts](file:///src/core/generators/ai-brief.ts) | 83 | **TODO** | Attivi\n`; |
-| [src/core/generators/generators.test.ts](file:///src/core/generators/generators.test.ts) | 405 | **TODO** | Attivi'); |
 | [src/core/scanner/summarizer.test.ts](file:///src/core/scanner/summarizer.test.ts) | 140 | **TODO** | comment', async () => { |
 | [src/core/scanner/summarizer.test.ts](file:///src/core/scanner/summarizer.test.ts) | 141 | **TODO** | refactor this\n'); |
 | [src/core/scanner/summarizer.test.ts](file:///src/core/scanner/summarizer.test.ts) | 151 | **FIXME** | comment', async () => { |
