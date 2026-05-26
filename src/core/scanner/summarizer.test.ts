@@ -470,6 +470,7 @@ describe('summarizeProject', () => {
         gitBranch: '',
         gitCommits: [],
         todos: [],
+        roadmap: [],
       });
     });
   });
@@ -488,6 +489,7 @@ describe('summarizeProject', () => {
         `${ROOT}/roadmap.md`,
         'utf8'
       );
+      expect(mockParseRoadmap).toHaveBeenCalledWith('# Roadmap\n- [ ] Setup');
       expect(result.roadmap).toEqual(items);
     });
 

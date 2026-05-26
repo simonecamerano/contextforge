@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseManifest } from './parsers/manifest.js';
-import { parseRoadmap, RoadmapItem } from './parsers/roadmap.js';
+import { parseRoadmap, type RoadmapItem } from './parsers/roadmap.js';
 
 export type { RoadmapItem } from './parsers/roadmap.js';
 
