@@ -420,9 +420,9 @@ describe('summarizeProject', () => {
   describe('language detection', () => {
     it.each([
       ['src/app.ts', 'TypeScript'],
-      ['src/app.tsx', 'TypeScript'],
+      ['src/app.tsx', 'React'],
       ['src/app.js', 'JavaScript'],
-      ['src/app.jsx', 'JavaScript'],
+      ['src/app.jsx', 'React'],
       ['script.py', 'Python'],
       ['data.json', 'JSON'],
       ['notes.txt', 'Text'],

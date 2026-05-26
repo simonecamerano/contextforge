@@ -3,7 +3,14 @@
     "allow": [
       "Bash(node -e ' *)",
       "Read(//home/simone/.claude/plugins/cache/claude-plugins-official/superpowers/**)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(node --input-type=module)",
+      "Bash(awk '/PARSER_REGISTRY/,/^};/' src/core/scanner/summarizer.ts)",
+      "Bash(awk '/extMap/,/^  };/' src/core/scanner/summarizer.ts)",
+      "Bash(git push *)"
+    ],
+    "additionalDirectories": [
+      "/home/simone/Documenti/start2impact/Progetti\\ personali/ContextForge/src/core/scanner/parsers"
     ]
   }
 }

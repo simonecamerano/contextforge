@@ -117,9 +117,9 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
 
   const extMap: Record<string, string> = {
     '.ts': 'TypeScript',
-    '.tsx': 'TypeScript',
+    '.tsx': 'React',
     '.js': 'JavaScript',
-    '.jsx': 'JavaScript',
+    '.jsx': 'React',
     '.py': 'Python',
     '.json': 'JSON',
     '.txt': 'Text',
