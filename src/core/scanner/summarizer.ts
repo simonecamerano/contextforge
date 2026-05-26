@@ -54,7 +54,7 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
       .map((c) => c.trim())
       .filter(Boolean);
   } catch {
-    // Non è un repository Git o Git non è installato
+    // Not a Git repository, or Git is not installed
   }
 
   const summary: ProjectSummary = {
@@ -95,7 +95,7 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
     try {
       const content = await fs.readFile(absolutePath, 'utf8');
 
-      // Ricerca TODO/FIXME nei commenti
+      // Search for TODO/FIXME comments
       const lines = content.split('\n');
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];

@@ -31,7 +31,7 @@ export async function detectChanges(
         modified.push(file);
       }
     } catch {
-      // file non leggibile, ignorato
+      // unreadable file, ignored
     }
   }
 

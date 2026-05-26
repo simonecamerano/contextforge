@@ -26,7 +26,7 @@ export function registerAskCommand(program: Command) {
       if (offline) {
         console.log(`\nRisultati locali per: "${question}"\n`);
         
-        // Filtra chunk rilevanti con punteggio > 0
+        // Keep relevant chunks with a score > 0
         const relevantChunks = chunks.filter(c => c.score > 0);
         if (relevantChunks.length === 0) {
           console.log('Nessun contesto rilevante trovato.');

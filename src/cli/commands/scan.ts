@@ -31,22 +31,22 @@ export function registerScanCommand(program: Command) {
         console.log(`Trovati ${files.length} file da analizzare.`);
         const summary = await summarizeProject(files, cwd);
 
-        // Genera Overview
+        // Generate overview
         const overviewContent = generateProjectOverview(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'project-overview.md'), overviewContent, 'utf8');
         console.log('Aggiornato: .contextforge/project-overview.md');
 
-        // Genera Architettura
+        // Generate architecture
         const architectureContent = generateArchitecture(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'architecture.md'), architectureContent, 'utf8');
         console.log('Aggiornato: .contextforge/architecture.md');
 
-        // Genera Active Context
+        // Generate active context
         const activeContextContent = generateActiveContext(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'active-context.md'), activeContextContent, 'utf8');
         console.log('Aggiornato: .contextforge/active-context.md');
 
-        // Calcola e salva hash per meta.json
+        // Compute and save hashes for meta.json
         const fileHashes: Record<string, string> = {};
         for (const file of files) {
           const absolutePath = path.join(cwd, file);
