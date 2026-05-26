@@ -23,6 +23,7 @@ export interface TodoItem {
 export interface ProjectSummary {
   name: string;
   version: string;
+  projectRoot: string;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   scripts: Record<string, string>;
@@ -60,6 +61,7 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
   const summary: ProjectSummary = {
     name: path.basename(projectRoot),
     version: '0.1.0',
+    projectRoot,
     dependencies: {},
     devDependencies: {},
     scripts: {},

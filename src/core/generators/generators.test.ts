@@ -8,6 +8,7 @@ import type { ProjectSummary } from '../scanner/summarizer.js';
 const baseSummary: ProjectSummary = {
   name: 'my-project',
   version: '1.0.0',
+  projectRoot: '/home/user/project',
   dependencies: {},
   devDependencies: {},
   scripts: {},

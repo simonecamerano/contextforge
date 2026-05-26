@@ -6,22 +6,26 @@ vi.mock('node:fs/promises');
 vi.mock('../generators/project-overview.js');
 vi.mock('../generators/architecture.js');
 vi.mock('../generators/active-context.js');
+vi.mock('../generators/ai-brief.js');
 
 import fs from 'node:fs/promises';
 import { generateProjectOverview } from '../generators/project-overview.js';
 import { generateArchitecture } from '../generators/architecture.js';
 import { generateActiveContext } from '../generators/active-context.js';
+import { generateAIBrief } from '../generators/ai-brief.js';
 
 const mockWriteFile = vi.mocked(fs.writeFile);
 const mockGenerateProjectOverview = vi.mocked(generateProjectOverview);
 const mockGenerateArchitecture = vi.mocked(generateArchitecture);
 const mockGenerateActiveContext = vi.mocked(generateActiveContext);
+const mockGenerateAIBrief = vi.mocked(generateAIBrief);
 
 const CONTEXT_DIR = '/project/.contextforge';
 
 const baseSummary: ProjectSummary = {
   name: 'test-project',
   version: '1.0.0',
+  projectRoot: '/project',
   dependencies: {},
   devDependencies: {},
   scripts: {},
@@ -39,6 +43,7 @@ beforeEach(() => {
   mockGenerateProjectOverview.mockReturnValue('# Project Overview\n');
   mockGenerateArchitecture.mockReturnValue('# Architecture\n');
   mockGenerateActiveContext.mockReturnValue('# Active Context\n');
+  mockGenerateAIBrief.mockReturnValue('# AI Brief\n');
 });
 
 describe('selectiveUpdate', () => {
@@ -251,16 +256,21 @@ describe('selectiveUpdate', () => {
       expect(paths).toContain(`${CONTEXT_DIR}/active-context.md`);
     });
 
-    it('writes only active-context.md when no relevant files change', async () => {
+    it('writes only active-context.md and ai-brief.md when no relevant files change', async () => {
       await selectiveUpdate(
         { modified: ['README.md'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
 
-      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile).toHaveBeenCalledTimes(2);
       expect(mockWriteFile).toHaveBeenCalledWith(
         `${CONTEXT_DIR}/active-context.md`,
+        expect.any(String),
+        'utf8'
+      );
+      expect(mockWriteFile).toHaveBeenCalledWith(
+        `${CONTEXT_DIR}/ai-brief.md`,
         expect.any(String),
         'utf8'
       );

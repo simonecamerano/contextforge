@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { ProjectSummary } from '../scanner/summarizer.js';
 
 export function generateArchitecture(summary: ProjectSummary): string {
@@ -7,7 +8,9 @@ export function generateArchitecture(summary: ProjectSummary): string {
   if (summary.tsModules.length > 0) {
     markdown += `## TypeScript / JavaScript Modules\n\n`;
     for (const mod of summary.tsModules) {
-      markdown += `### [${mod.path}](file:///${mod.path})\n`;
+      const absPath = path.resolve(summary.projectRoot, mod.path).replace(/\\/g, '/');
+      const fileUrl = `file://${absPath.startsWith('/') ? '' : '/'}${absPath}`;
+      markdown += `### [${mod.path}](${fileUrl})\n`;
       markdown += `- **Exports:** ${mod.exports.length > 0 ? mod.exports.map(e => `\`${e}\``).join(', ') : '*none*'}\n`;
       
       if (mod.classes.length > 0) {
@@ -31,7 +34,9 @@ export function generateArchitecture(summary: ProjectSummary): string {
   if (summary.pythonModules.length > 0) {
     markdown += `## Python Modules\n\n`;
     for (const mod of summary.pythonModules) {
-      markdown += `### [${mod.path}](file:///${mod.path})\n`;
+      const absPath = path.resolve(summary.projectRoot, mod.path).replace(/\\/g, '/');
+      const fileUrl = `file://${absPath.startsWith('/') ? '' : '/'}${absPath}`;
+      markdown += `### [${mod.path}](${fileUrl})\n`;
       if (mod.classes.length > 0) {
         markdown += `- **Classes:** ${mod.classes.map(c => `\`${c.name}\``).join(', ')}\n`;
       }

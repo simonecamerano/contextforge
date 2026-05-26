@@ -29,7 +29,7 @@ export async function walkDirectory(
           result.push(relativePath);
         }
       } catch (err) {
-        console.error(`Impossibile leggere lo stato di ${fullPath}:`, err);
+        console.error(`Failed to read file status for ${fullPath}:`, err);
       }
     }
   } catch (err) {

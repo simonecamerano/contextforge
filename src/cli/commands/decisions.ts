@@ -77,7 +77,9 @@ export function registerDecisionsCommand(program: Command) {
 
         if (fs.existsSync(activeContextPath)) {
           let activeContext = fs.readFileSync(activeContextPath, 'utf8');
-          const decisionLink = `- [${todayStr} - ${title}](file:///.contextforge/technical-decisions.md)`;
+          const absDecisionsPath = decisionsPath.replace(/\\/g, '/');
+          const fileUrl = `file://${absDecisionsPath.startsWith('/') ? '' : '/'}${absDecisionsPath}`;
+          const decisionLink = `- [${todayStr} - ${title}](${fileUrl})`;
           
           if (activeContext.includes('## Recent Decisions')) {
             activeContext = activeContext.replace('## Recent Decisions\n', `## Recent Decisions\n\n${decisionLink}\n`);

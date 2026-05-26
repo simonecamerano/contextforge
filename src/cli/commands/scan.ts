@@ -8,6 +8,7 @@ import { summarizeProject } from '../../core/scanner/summarizer.js';
 import { generateProjectOverview } from '../../core/generators/project-overview.js';
 import { generateArchitecture } from '../../core/generators/architecture.js';
 import { generateActiveContext } from '../../core/generators/active-context.js';
+import { generateAIBrief } from '../../core/generators/ai-brief.js';
 import { computeCompressionStats } from '../../core/stats/compression-stats.js';
 
 interface Meta {
@@ -49,6 +50,11 @@ export async function runScan(cwd: string): Promise<void> {
     const activeContextContent = generateActiveContext(summary);
     fs.writeFileSync(path.join(contextForgeDir, 'active-context.md'), activeContextContent, 'utf8');
     console.log('Updated: .contextforge/active-context.md');
+
+    // Generate AI brief
+    const briefContent = generateAIBrief(summary);
+    fs.writeFileSync(path.join(contextForgeDir, 'ai-brief.md'), briefContent, 'utf8');
+    console.log('Updated: .contextforge/ai-brief.md');
 
     // Compute and save hashes for meta.json
     const fileHashes: Record<string, string> = {};

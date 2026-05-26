@@ -5,6 +5,7 @@ import { ProjectSummary } from '../scanner/summarizer.js';
 import { generateProjectOverview } from '../generators/project-overview.js';
 import { generateArchitecture } from '../generators/architecture.js';
 import { generateActiveContext } from '../generators/active-context.js';
+import { generateAIBrief } from '../generators/ai-brief.js';
 
 /**
  * Manifest files whose modification signals that project-level metadata
@@ -98,4 +99,12 @@ export async function selectiveUpdate(
     'utf8'
   );
   console.log('Updated: .contextforge/active-context.md');
+
+  // Always regenerate ai-brief.md to keep the compressed context in sync.
+  await fs.writeFile(
+    path.join(contextForgeDir, 'ai-brief.md'),
+    generateAIBrief(summary),
+    'utf8'
+  );
+  console.log('Updated: .contextforge/ai-brief.md');
 }
