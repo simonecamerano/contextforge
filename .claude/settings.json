@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Read(//home/simone/.claude/plugins/cache/claude-plugins-official/superpowers/**)"
     ]
   }
 }
