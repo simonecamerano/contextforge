@@ -245,13 +245,19 @@ Then invoke it through your `package.json` scripts or via `npx`.
 
 ### `init`
 
-Initialises ContextForge in the current repository. Creates the `.contextforge/` directory with seven starter Markdown files and a `.contextforge/local/` directory (which is appended to `.gitignore` automatically).
+Initializes ContextForge in the current directory.
 
 ```bash
 contextforge init
 ```
 
-**What it creates:**
+**What it does:**
+1. **Initializes Git**: If no local Git repository (`.git` folder) is detected in the current directory, it runs `git init` automatically.
+2. **Scaffolds ContextForge**: Creates the `.contextforge/` directory with seven starter Markdown files and the local machine-specific `.contextforge/local/` directory (automatically appended to `.gitignore`).
+3. **Scaffolds Agent Rules**: Automatically scaffolds the agent rules directory and template at `.agent/rules/scelta_modello.md` to enable out-of-the-box model selection routing and context injection.
+4. **Performs Initial Scan**: Automatically runs a full scan of the codebase to populate your `.contextforge/` files immediately.
+
+**ContextForge Files Created:**
 
 ```
 .contextforge/
@@ -264,7 +270,7 @@ contextforge init
 └── ai-brief.md               # LLM-optimised summary
 ```
 
-> Run this once per project. If `.contextforge/` already exists the command exits early with a warning.
+> Run this once per project. If `.contextforge/` already exists, the command exits early with a warning.
 
 ---
 
@@ -279,17 +285,17 @@ contextforge scan
 **Example output:**
 
 ```
-Avvio scansione del repository...
-Trovati 42 file da analizzare.
-Aggiornato: .contextforge/project-overview.md
-Aggiornato: .contextforge/architecture.md
-Aggiornato: .contextforge/active-context.md
-Aggiornato: .contextforge/local/meta.json
+Starting repository scan...
+Found 42 files to analyze.
+Updated: .contextforge/project-overview.md
+Updated: .contextforge/architecture.md
+Updated: .contextforge/active-context.md
+Updated: .contextforge/local/meta.json
 
-Scansione completata con successo!
+Scan completed successfully!
 ```
 
-> Run `scan` the first time after `init`, and then again whenever you want a full refresh from scratch.
+> Run `scan` whenever you want a full refresh from scratch (although `update` is recommended for daily incremental runs).
 
 ---
 
@@ -673,6 +679,28 @@ The project targets **Node.js 20** and is compiled to ESM via [tsup](https://tsu
 
 ---
 
+## Agentic AI Workflow Integration
+
+ContextForge is designed to integrate seamlessly into agentic AI workflows (such as Google Antigravity or other system-prompted agents) to manage context dynamically and optimize token usage.
+
+When you run `contextforge init`, it automatically creates an agent rules file at `.agent/rules/scelta_modello.md`. In an agent-supported IDE:
+1. The agent reads this rule file at the start of any task.
+2. It detects the `.contextforge/` directory.
+3. It runs `contextforge update` automatically to ensure the codebase context is fresh.
+4. It reads the generated `.contextforge/active-context.md` and `architecture.md` files.
+5. It injects this pre-compressed, structured context directly into the prompt of the chosen implementing model (Claude, Qwen, DeepSeek, etc.), avoiding raw codebase dumps and saving up to **60-80% on token overhead**.
+
+---
+
+## Roadmap
+
+- [ ] **MCP Server support**: Expose ContextForge scan, update, and search capabilities as a native Model Context Protocol (MCP) server, allowing instant integration as an agent tool in Claude Desktop, Cursor, Windsurf, and other compatible clients.
+- [ ] **AST Parsing Expansion**: Add tree-sitter parsers to support Go, Rust, Java, and other compiled languages in `architecture` scanning.
+- [ ] **Semantic Context Search**: Upgrade the keyword-frequency retriever with local vector embeddings for semantic query matching.
+
+---
+
 ## License
 
 MIT
+
