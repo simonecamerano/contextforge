@@ -5,6 +5,15 @@ import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseManifest } from './parsers/manifest.js';
 import { parseRoadmap, type RoadmapItem } from './parsers/roadmap.js';
+import { parseVue } from './parsers/vue.js';
+import { parseSvelte } from './parsers/svelte.js';
+import { parsePHP } from './parsers/php.js';
+import { parseRuby } from './parsers/ruby.js';
+import { parseGo } from './parsers/go.js';
+import { parseJava } from './parsers/java.js';
+import { parseKotlin } from './parsers/kotlin.js';
+import { parseCSharp } from './parsers/csharp.js';
+import { parseRust } from './parsers/rust.js';
 
 export type { RoadmapItem } from './parsers/roadmap.js';
 
@@ -38,6 +47,24 @@ export interface ProjectSummary {
   todos: TodoItem[];
   roadmap: RoadmapItem[];
 }
+
+type ParserFn = (file: string, content: string) => Promise<Omit<SummarizedModule, 'path'>>;
+
+const PARSER_REGISTRY: Record<string, ParserFn> = {
+  '.ts': parseTypeScript as ParserFn,
+  '.tsx': parseTypeScript as ParserFn,
+  '.js': parseTypeScript as ParserFn,
+  '.jsx': parseTypeScript as ParserFn,
+  '.vue': parseVue as ParserFn,
+  '.svelte': parseSvelte as ParserFn,
+  '.php': parsePHP as ParserFn,
+  '.rb': parseRuby as ParserFn,
+  '.go': parseGo as ParserFn,
+  '.java': parseJava as ParserFn,
+  '.kt': parseKotlin as ParserFn,
+  '.cs': parseCSharp as ParserFn,
+  '.rs': parseRust as ParserFn,
+};
 
 export async function summarizeProject(files: string[], projectRoot: string): Promise<ProjectSummary> {
   let gitBranch = '';
@@ -98,11 +125,34 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
     '.txt': 'Text',
     '.toml': 'TOML',
     '.md': 'Markdown',
+    '.vue': 'Vue',
+    '.svelte': 'Svelte',
+    '.php': 'PHP',
+    '.rb': 'Ruby',
+    '.go': 'Go',
+    '.java': 'Java',
+    '.kt': 'Kotlin',
+    '.cs': 'C#',
+    '.rs': 'Rust',
+    '.scss': 'SCSS',
+    '.css': 'CSS',
+    '.less': 'Less',
+    '.html': 'HTML',
+    '.sh': 'Shell',
+    '.bash': 'Shell',
+    '.yml': 'YAML',
+    '.yaml': 'YAML',
   };
 
   for (const file of files) {
     const absolutePath = path.join(projectRoot, file);
     const ext = path.extname(file).toLowerCase();
+
+    if (path.basename(file) === 'Dockerfile') {
+      if (!summary.languages.includes('Dockerfile')) {
+        summary.languages.push('Dockerfile');
+      }
+    }
 
     const lang = extMap[ext];
     if (lang && !summary.languages.includes(lang)) {
@@ -112,7 +162,6 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
     try {
       const content = await fs.readFile(absolutePath, 'utf8');
 
-      // Search for TODO/FIXME comments
       const lines = content.split('\n');
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -127,12 +176,10 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
         }
       }
 
-      if (ext === '.ts' || ext === '.js' || ext === '.tsx' || ext === '.jsx') {
-        const parsed = await parseTypeScript(file, content);
-        summary.tsModules.push({
-          path: file,
-          ...parsed,
-        });
+      const parser = PARSER_REGISTRY[ext];
+      if (parser) {
+        const parsed = await parser(file, content);
+        summary.tsModules.push({ path: file, ...parsed });
       } else if (ext === '.py') {
         const parsed = await parsePython(file, content);
         summary.pythonModules.push({

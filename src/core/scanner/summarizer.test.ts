@@ -29,6 +29,16 @@ vi.mock('./parsers/roadmap.js', () => ({
   parseRoadmap: vi.fn(),
 }));
 
+vi.mock('./parsers/vue.js', () => ({ parseVue: vi.fn() }));
+vi.mock('./parsers/svelte.js', () => ({ parseSvelte: vi.fn() }));
+vi.mock('./parsers/php.js', () => ({ parsePHP: vi.fn() }));
+vi.mock('./parsers/ruby.js', () => ({ parseRuby: vi.fn() }));
+vi.mock('./parsers/go.js', () => ({ parseGo: vi.fn() }));
+vi.mock('./parsers/java.js', () => ({ parseJava: vi.fn() }));
+vi.mock('./parsers/kotlin.js', () => ({ parseKotlin: vi.fn() }));
+vi.mock('./parsers/csharp.js', () => ({ parseCSharp: vi.fn() }));
+vi.mock('./parsers/rust.js', () => ({ parseRust: vi.fn() }));
+
 // ── Typed mock accessors ─────────────────────────────────────────────────────
 
 import fs from 'node:fs/promises';
@@ -37,6 +47,15 @@ import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseManifest } from './parsers/manifest.js';
 import { parseRoadmap } from './parsers/roadmap.js';
+import { parseVue } from './parsers/vue.js';
+import { parseSvelte } from './parsers/svelte.js';
+import { parsePHP } from './parsers/php.js';
+import { parseRuby } from './parsers/ruby.js';
+import { parseGo } from './parsers/go.js';
+import { parseJava } from './parsers/java.js';
+import { parseKotlin } from './parsers/kotlin.js';
+import { parseCSharp } from './parsers/csharp.js';
+import { parseRust } from './parsers/rust.js';
 
 const mockReadFile = vi.mocked(fs.readFile) as ReturnType<typeof vi.fn>;
 const mockParseRoadmap = vi.mocked(parseRoadmap);
@@ -44,6 +63,15 @@ const mockExecSync = vi.mocked(execSync);
 const mockParseTypeScript = vi.mocked(parseTypeScript);
 const mockParsePython = vi.mocked(parsePython);
 const mockParseManifest = vi.mocked(parseManifest);
+const mockParseVue = vi.mocked(parseVue);
+const mockParseSvelte = vi.mocked(parseSvelte);
+const mockParsePHP = vi.mocked(parsePHP);
+const mockParseRuby = vi.mocked(parseRuby);
+const mockParseGo = vi.mocked(parseGo);
+const mockParseJava = vi.mocked(parseJava);
+const mockParseKotlin = vi.mocked(parseKotlin);
+const mockParseCSharp = vi.mocked(parseCSharp);
+const mockParseRust = vi.mocked(parseRust);
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -59,6 +87,15 @@ function setupDefaultMocks() {
   mockParsePython.mockResolvedValue(emptyPyResult);
   mockParseManifest.mockResolvedValue(emptyManifestResult);
   mockParseRoadmap.mockReturnValue([]);
+  mockParseVue.mockResolvedValue(emptyTsResult);
+  mockParseSvelte.mockResolvedValue(emptyTsResult);
+  mockParsePHP.mockResolvedValue(emptyTsResult);
+  mockParseRuby.mockResolvedValue(emptyTsResult);
+  mockParseGo.mockResolvedValue(emptyTsResult);
+  mockParseJava.mockResolvedValue(emptyTsResult);
+  mockParseKotlin.mockResolvedValue(emptyTsResult);
+  mockParseCSharp.mockResolvedValue(emptyTsResult);
+  mockParseRust.mockResolvedValue(emptyTsResult);
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -508,6 +545,112 @@ describe('summarizeProject', () => {
       const result = await summarizeProject([], ROOT);
 
       expect(result.roadmap).toEqual([]);
+    });
+  });
+
+  // ── New language detection ──────────────────────────────────────────────────
+
+  describe('new language detection', () => {
+    it.each([
+      ['Component.vue', 'Vue'],
+      ['App.svelte', 'Svelte'],
+      ['index.php', 'PHP'],
+      ['app.rb', 'Ruby'],
+      ['main.go', 'Go'],
+      ['Main.java', 'Java'],
+      ['Main.kt', 'Kotlin'],
+      ['Program.cs', 'C#'],
+      ['main.rs', 'Rust'],
+      ['styles.scss', 'SCSS'],
+      ['styles.css', 'CSS'],
+      ['styles.less', 'Less'],
+      ['index.html', 'HTML'],
+      ['deploy.sh', 'Shell'],
+      ['config.yml', 'YAML'],
+      ['config.yaml', 'YAML'],
+    ])('detects "%s" as %s', async (file, language) => {
+      mockReadFile.mockResolvedValue('');
+      const result = await summarizeProject([file], ROOT);
+      expect(result.languages).toContain(language);
+    });
+
+    it('detects Dockerfile as Dockerfile language', async () => {
+      mockReadFile.mockResolvedValue('FROM node:18\n');
+      const result = await summarizeProject(['Dockerfile'], ROOT);
+      expect(result.languages).toContain('Dockerfile');
+    });
+
+    it('does not detect a file named NotDockerfile as Dockerfile', async () => {
+      mockReadFile.mockResolvedValue('');
+      const result = await summarizeProject(['NotDockerfile'], ROOT);
+      expect(result.languages).not.toContain('Dockerfile');
+    });
+  });
+
+  // ── Registry dispatch ───────────────────────────────────────────────────────
+
+  describe('registry dispatch', () => {
+    it('calls parseVue for .vue files and pushes to tsModules', async () => {
+      mockReadFile.mockResolvedValue('<script>export default {}</script>');
+      mockParseVue.mockResolvedValue(emptyTsResult);
+
+      const result = await summarizeProject(['Component.vue'], ROOT);
+
+      expect(mockParseVue).toHaveBeenCalledWith('Component.vue', expect.any(String));
+      expect(result.tsModules).toHaveLength(1);
+      expect(result.tsModules[0].path).toBe('Component.vue');
+    });
+
+    it('calls parsePHP for .php files and pushes to tsModules', async () => {
+      mockReadFile.mockResolvedValue('<?php class Foo {}');
+      mockParsePHP.mockResolvedValue(emptyTsResult);
+
+      const result = await summarizeProject(['index.php'], ROOT);
+
+      expect(mockParsePHP).toHaveBeenCalledWith('index.php', expect.any(String));
+      expect(result.tsModules).toHaveLength(1);
+    });
+
+    it('calls parseGo for .go files and pushes to tsModules', async () => {
+      mockReadFile.mockResolvedValue('package main');
+      mockParseGo.mockResolvedValue(emptyTsResult);
+
+      const result = await summarizeProject(['main.go'], ROOT);
+
+      expect(mockParseGo).toHaveBeenCalledWith('main.go', expect.any(String));
+      expect(result.tsModules).toHaveLength(1);
+    });
+
+    it('does not push to tsModules for detection-only extensions (e.g. .scss)', async () => {
+      mockReadFile.mockResolvedValue('.body { color: red; }');
+
+      const result = await summarizeProject(['styles.scss'], ROOT);
+
+      expect(result.tsModules).toHaveLength(0);
+      expect(result.languages).toContain('SCSS');
+    });
+  });
+
+  // ── Fallback TODO scanning ──────────────────────────────────────────────────
+
+  describe('fallback TODO scanning', () => {
+    it('scans TODOs in .scss files even without a structural parser', async () => {
+      mockReadFile.mockResolvedValue('// TODO: fix dark mode\n.body {}');
+
+      const result = await summarizeProject(['styles.scss'], ROOT);
+
+      expect(result.todos).toHaveLength(1);
+      expect(result.todos[0].file).toBe('styles.scss');
+      expect(result.todos[0].text).toBe('fix dark mode');
+    });
+
+    it('scans TODOs in Dockerfile even without a structural parser', async () => {
+      mockReadFile.mockResolvedValue('FROM node:18\n# TODO: pin exact version\n');
+
+      const result = await summarizeProject(['Dockerfile'], ROOT);
+
+      expect(result.todos).toHaveLength(1);
+      expect(result.todos[0].file).toBe('Dockerfile');
     });
   });
 });
