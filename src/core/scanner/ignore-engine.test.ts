@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs';
-import { IgnoreEngine } from './ignore-engine';
+import { IgnoreEngine } from './ignore-engine.js';
 
 vi.mock('node:fs');
 

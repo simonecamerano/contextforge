@@ -44,7 +44,7 @@ beforeEach(() => {
 describe('selectiveUpdate', () => {
   describe('active-context.md', () => {
     it('always writes active-context.md regardless of changes', async () => {
-      await selectiveUpdate({ modified: [], added: [], removed: [] }, baseSummary, CONTEXT_DIR);
+      await selectiveUpdate({ modified: [], added: [], removed: [], newHashes: {} }, baseSummary, CONTEXT_DIR);
 
       expect(mockWriteFile).toHaveBeenCalledWith(
         `${CONTEXT_DIR}/active-context.md`,
@@ -54,7 +54,7 @@ describe('selectiveUpdate', () => {
     });
 
     it('calls generateActiveContext with the provided summary', async () => {
-      await selectiveUpdate({ modified: [], added: [], removed: [] }, baseSummary, CONTEXT_DIR);
+      await selectiveUpdate({ modified: [], added: [], removed: [], newHashes: {} }, baseSummary, CONTEXT_DIR);
 
       expect(mockGenerateActiveContext).toHaveBeenCalledWith(baseSummary);
     });
@@ -63,7 +63,7 @@ describe('selectiveUpdate', () => {
   describe('project-overview.md', () => {
     it('writes project-overview.md when a manifest file is modified', async () => {
       await selectiveUpdate(
-        { modified: ['package.json'], added: [], removed: [] },
+        { modified: ['package.json'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -77,7 +77,7 @@ describe('selectiveUpdate', () => {
 
     it('writes project-overview.md when a manifest file is added', async () => {
       await selectiveUpdate(
-        { modified: [], added: ['requirements.txt'], removed: [] },
+        { modified: [], added: ['requirements.txt'], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -91,7 +91,7 @@ describe('selectiveUpdate', () => {
 
     it('writes project-overview.md when a manifest file is removed', async () => {
       await selectiveUpdate(
-        { modified: [], added: [], removed: ['pyproject.toml'] },
+        { modified: [], added: [], removed: ['pyproject.toml'], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -105,7 +105,7 @@ describe('selectiveUpdate', () => {
 
     it('does NOT write project-overview.md when only source files change', async () => {
       await selectiveUpdate(
-        { modified: ['src/index.ts'], added: [], removed: [] },
+        { modified: ['src/index.ts'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -115,7 +115,7 @@ describe('selectiveUpdate', () => {
     });
 
     it('does NOT write project-overview.md when no files change', async () => {
-      await selectiveUpdate({ modified: [], added: [], removed: [] }, baseSummary, CONTEXT_DIR);
+      await selectiveUpdate({ modified: [], added: [], removed: [], newHashes: {} }, baseSummary, CONTEXT_DIR);
 
       const paths = mockWriteFile.mock.calls.map((c) => c[0]);
       expect(paths).not.toContain(`${CONTEXT_DIR}/project-overview.md`);
@@ -123,7 +123,7 @@ describe('selectiveUpdate', () => {
 
     it('calls generateProjectOverview with the provided summary', async () => {
       await selectiveUpdate(
-        { modified: ['package.json'], added: [], removed: [] },
+        { modified: ['package.json'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -133,7 +133,7 @@ describe('selectiveUpdate', () => {
 
     it('recognises manifest files by basename regardless of directory path', async () => {
       await selectiveUpdate(
-        { modified: ['subdir/package.json'], added: [], removed: [] },
+        { modified: ['subdir/package.json'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -146,7 +146,7 @@ describe('selectiveUpdate', () => {
   describe('architecture.md', () => {
     it('writes architecture.md when a TypeScript source file is modified', async () => {
       await selectiveUpdate(
-        { modified: ['src/app.ts'], added: [], removed: [] },
+        { modified: ['src/app.ts'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -160,7 +160,7 @@ describe('selectiveUpdate', () => {
 
     it('writes architecture.md when a JavaScript file is added', async () => {
       await selectiveUpdate(
-        { modified: [], added: ['src/utils.js'], removed: [] },
+        { modified: [], added: ['src/utils.js'], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -174,7 +174,7 @@ describe('selectiveUpdate', () => {
 
     it('writes architecture.md when a Python file is removed', async () => {
       await selectiveUpdate(
-        { modified: [], added: [], removed: ['main.py'] },
+        { modified: [], added: [], removed: ['main.py'], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -188,7 +188,7 @@ describe('selectiveUpdate', () => {
 
     it('writes architecture.md for .tsx and .jsx files', async () => {
       await selectiveUpdate(
-        { modified: ['src/App.tsx'], added: ['src/Button.jsx'], removed: [] },
+        { modified: ['src/App.tsx'], added: ['src/Button.jsx'], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -199,7 +199,7 @@ describe('selectiveUpdate', () => {
 
     it('does NOT write architecture.md when only manifest files change', async () => {
       await selectiveUpdate(
-        { modified: ['package.json'], added: [], removed: [] },
+        { modified: ['package.json'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -209,7 +209,7 @@ describe('selectiveUpdate', () => {
     });
 
     it('does NOT write architecture.md when no files change', async () => {
-      await selectiveUpdate({ modified: [], added: [], removed: [] }, baseSummary, CONTEXT_DIR);
+      await selectiveUpdate({ modified: [], added: [], removed: [], newHashes: {} }, baseSummary, CONTEXT_DIR);
 
       const paths = mockWriteFile.mock.calls.map((c) => c[0]);
       expect(paths).not.toContain(`${CONTEXT_DIR}/architecture.md`);
@@ -217,7 +217,7 @@ describe('selectiveUpdate', () => {
 
     it('does NOT write architecture.md for non-source file changes', async () => {
       await selectiveUpdate(
-        { modified: ['README.md', 'docs/guide.md'], added: [], removed: [] },
+        { modified: ['README.md', 'docs/guide.md'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -228,7 +228,7 @@ describe('selectiveUpdate', () => {
 
     it('calls generateArchitecture with the provided summary', async () => {
       await selectiveUpdate(
-        { modified: ['src/index.ts'], added: [], removed: [] },
+        { modified: ['src/index.ts'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -240,7 +240,7 @@ describe('selectiveUpdate', () => {
   describe('combined changes', () => {
     it('writes all three files when both manifest and source files change', async () => {
       await selectiveUpdate(
-        { modified: ['package.json', 'src/index.ts'], added: [], removed: [] },
+        { modified: ['package.json', 'src/index.ts'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -253,7 +253,7 @@ describe('selectiveUpdate', () => {
 
     it('writes only active-context.md when no relevant files change', async () => {
       await selectiveUpdate(
-        { modified: ['README.md'], added: [], removed: [] },
+        { modified: ['README.md'], added: [], removed: [], newHashes: {} },
         baseSummary,
         CONTEXT_DIR
       );
@@ -269,7 +269,7 @@ describe('selectiveUpdate', () => {
     it('uses the contextForgeDir to build output paths', async () => {
       const customDir = '/custom/output/dir';
       await selectiveUpdate(
-        { modified: ['package.json', 'src/main.ts'], added: [], removed: [] },
+        { modified: ['package.json', 'src/main.ts'], added: [], removed: [], newHashes: {} },
         baseSummary,
         customDir
       );

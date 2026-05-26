@@ -33,14 +33,14 @@ export function registerBriefCommand(program: Command) {
         const files = await walkDirectory(cwd, ignoreEngine);
         const summary = await summarizeProject(files, cwd);
 
-        const briefContent = generateAIBrief(summary, budget);
+        const briefContent = generateAIBrief(summary);
         const briefPath = path.join(contextForgeDir, 'ai-brief.md');
         
         fs.writeFileSync(briefPath, briefContent, 'utf8');
         
         const estimatedTokens = Math.ceil(briefContent.length / 4);
         console.log(`Updated: .contextforge/ai-brief.md`);
-        console.log(`Estimated brief size: ~${estimatedTokens} tokens (out of ${budget} max).`);
+        console.log(`Estimated brief size: ~${estimatedTokens} tokens.`);
       } catch (error) {
         console.error('Error during brief generation:', error);
         process.exit(1);

@@ -269,17 +269,14 @@ describe('generateActiveContext', () => {
 // ---------------------------------------------------------------------------
 
 describe('generateAIBrief', () => {
-  const TOKEN_BUDGET = 8000;
-
   it('starts with the # AI Brief heading', () => {
-    const result = generateAIBrief(baseSummary, TOKEN_BUDGET);
+    const result = generateAIBrief(baseSummary);
     expect(result.startsWith('# AI Brief')).toBe(true);
   });
 
   it('includes project name, languages and branch', () => {
     const result = generateAIBrief(
       { ...baseSummary, languages: ['TypeScript'], gitBranch: 'develop' },
-      TOKEN_BUDGET,
     );
     expect(result).toContain('my-project');
     expect(result).toContain('TypeScript');
@@ -287,7 +284,7 @@ describe('generateAIBrief', () => {
   });
 
   it('shows "not detected" when git branch is empty', () => {
-    const result = generateAIBrief({ ...baseSummary, gitBranch: '' }, TOKEN_BUDGET);
+    const result = generateAIBrief({ ...baseSummary, gitBranch: '' });
     expect(result).toContain('not detected');
   });
 
@@ -295,22 +292,24 @@ describe('generateAIBrief', () => {
     const deps = Object.fromEntries(
       Array.from({ length: 5 }, (_, i) => [`dep-${i}`, `^${i}.0.0`]),
     );
-    const result = generateAIBrief({ ...baseSummary, dependencies: deps }, TOKEN_BUDGET);
+    const result = generateAIBrief({ ...baseSummary, dependencies: deps });
     expect(result).toContain('### Key Dependencies');
     for (const key of Object.keys(deps)) {
       expect(result).toContain(`\`${key}\``);
     }
   });
 
-  it('truncates dependencies list when more than 10 deps and budget allows', () => {
+  it('lists all dependencies regardless of count', () => {
     const deps = Object.fromEntries(
       Array.from({ length: 15 }, (_, i) => [`dep-${i}`, `^${i}.0.0`]),
     );
-    const result = generateAIBrief({ ...baseSummary, dependencies: deps }, TOKEN_BUDGET);
-    expect(result).toContain('and');
+    const result = generateAIBrief({ ...baseSummary, dependencies: deps });
+    for (const key of Object.keys(deps)) {
+      expect(result).toContain(`\`${key}\``);
+    }
   });
 
-  it('renders TypeScript module details within budget', () => {
+  it('renders TypeScript module details', () => {
     const result = generateAIBrief(
       {
         ...baseSummary,
@@ -324,7 +323,6 @@ describe('generateAIBrief', () => {
           },
         ],
       },
-      TOKEN_BUDGET,
     );
     expect(result).toContain('#### TypeScript/JavaScript Modules');
     expect(result).toContain('src/api.ts');
@@ -334,7 +332,7 @@ describe('generateAIBrief', () => {
     expect(result).toContain('`ApiServer`');
   });
 
-  it('abbreviates exports list when module has more than 5 exports', () => {
+  it('lists all exports regardless of count', () => {
     const result = generateAIBrief(
       {
         ...baseSummary,
@@ -348,12 +346,13 @@ describe('generateAIBrief', () => {
           },
         ],
       },
-      TOKEN_BUDGET,
     );
-    expect(result).toContain('others');
+    for (const exp of ['a', 'b', 'c', 'd', 'e', 'f', 'g']) {
+      expect(result).toContain(`\`${exp}\``);
+    }
   });
 
-  it('renders Python module details within budget', () => {
+  it('renders Python module details', () => {
     const result = generateAIBrief(
       {
         ...baseSummary,
@@ -367,7 +366,6 @@ describe('generateAIBrief', () => {
           },
         ],
       },
-      TOKEN_BUDGET,
     );
     expect(result).toContain('#### Python Modules');
     expect(result).toContain('scripts/process.py');
@@ -375,7 +373,7 @@ describe('generateAIBrief', () => {
     expect(result).toContain('`run`');
   });
 
-  it('abbreviates python functions list when more than 5 functions', () => {
+  it('lists all python functions regardless of count', () => {
     const result = generateAIBrief(
       {
         ...baseSummary,
@@ -389,9 +387,10 @@ describe('generateAIBrief', () => {
           },
         ],
       },
-      TOKEN_BUDGET,
     );
-    expect(result).toContain('others');
+    for (const fn of ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7']) {
+      expect(result).toContain(`\`${fn}\``);
+    }
   });
 
   it('renders all todos when 5 or fewer', () => {
@@ -401,34 +400,28 @@ describe('generateAIBrief', () => {
       type: 'TODO' as const,
       text: `task ${i}`,
     }));
-    const result = generateAIBrief({ ...baseSummary, todos }, TOKEN_BUDGET);
+    const result = generateAIBrief({ ...baseSummary, todos });
     expect(result).toContain('### Active Todos');
     for (const todo of todos) {
       expect(result).toContain(todo.text);
     }
   });
 
-  it('truncates todos list when more than 5 and budget allows', () => {
+  it('lists all todos regardless of count', () => {
     const todos = Array.from({ length: 8 }, (_, i) => ({
       file: `src/file${i}.ts`,
       line: i + 1,
       type: 'TODO' as const,
       text: `task ${i}`,
     }));
-    const result = generateAIBrief({ ...baseSummary, todos }, TOKEN_BUDGET);
-    expect(result).toContain('and');
-    expect(result).toContain('other todos in the code');
+    const result = generateAIBrief({ ...baseSummary, todos });
+    for (const todo of todos) {
+      expect(result).toContain(todo.text);
+    }
   });
 
-  it('truncates output when token budget is exceeded', () => {
-    // baseSummary alone produces ~200 chars (~50 tokens); use budget=10 to force truncation
-    const tinyBudget = 10;
-    const result = generateAIBrief(baseSummary, tinyBudget);
-    expect(result).toContain('TRUNCATED - BUDGET LIMIT EXCEEDED');
-  });
-
-  it('does not truncate output when token budget is sufficient', () => {
-    const result = generateAIBrief(baseSummary, TOKEN_BUDGET);
+  it('does not truncate output', () => {
+    const result = generateAIBrief(baseSummary);
     expect(result).not.toContain('TRUNCATED');
   });
 });
