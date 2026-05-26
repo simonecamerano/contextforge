@@ -61,7 +61,7 @@ Copilot CLI activates **only on Simone's explicit trigger** ("project done, let'
 
 ---
 
-## 3. CLI Execution (Only after Simone's approval)
+## 3. CLI Execution & Strict Delegation (Only after Simone's approval)
 
 - **Qwen local**: run directly from Antigravity IDE (local Ollama)
 - **DeepSeek**: \`source venv/bin/activate && python3 ds.py "PROMPT"\`
@@ -70,6 +70,9 @@ Copilot CLI activates **only on Simone's explicit trigger** ("project done, let'
 - **Codex**: \`codex exec --dangerously-bypass-approvals-and-sandbox "PROMPT"\`
 - **Gemini**: run directly from Antigravity IDE
 - **Copilot CLI** (\`gh copilot\`): best for shell command suggestions; activated manually by Simone at project completion for docstrings/tests/docs
+
+**Strict Model Delegation Rule:**
+If a microtask is assigned to a model other than Gemini (i.e., Qwen, Claude, DeepSeek, Codex, Copilot), Gemini **MUST NOT** write or modify files directly using its own generation capabilities. Gemini **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Gemini is strictly forbidden.
 
 ---
 
