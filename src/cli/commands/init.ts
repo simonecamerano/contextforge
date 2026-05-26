@@ -40,7 +40,7 @@ The following categories are **exclusively reserved for Copilot CLI** and must n
 | Full test suite | Unit tests, integration tests across all modules | Tests explicitly requested as the current task deliverable |
 | Repo documentation | README, CHANGELOG, wiki, docs/ folder | None — always reserved for Copilot |
 
-> **Note:** Copilot CLI (\`gh copilot\`) is best for suggesting shell commands and GitHub-integrated workflows. For **batch file editing** (e.g. global string replacement, multi-file translation, style uniformity across source files), use **Claude CLI** (\`claude --dangerously-skip-permissions -p \"...\"\`) — it can read and edit files directly.
+> **Note:** Copilot CLI (\`gh copilot\`) is best for suggesting shell commands and GitHub-integrated workflows. For **batch file editing** (e.g. global string replacement, multi-file translation, style uniformity across source files), use **Claude CLI** (\`claude --dangerously-skip-permissions -p "..."\`) — it can read and edit files directly.
 
 ### Automatic instruction to include in model prompts
 
@@ -53,7 +53,7 @@ Gemini includes this instruction in **every** prompt passed to other models:
 
 ### Activating Copilot CLI
 
-Copilot CLI activates **only on Simone's explicit trigger** (\"project done, let's run Copilot\"), in this order:
+Copilot CLI activates **only on Simone's explicit trigger** ("project done, let's run Copilot"), in this order:
 1. Full test suite generation
 2. Adding docstrings and comments
 3. Repo documentation generation
@@ -64,10 +64,10 @@ Copilot CLI activates **only on Simone's explicit trigger** (\"project done, let
 ## 3. CLI Execution (Only after Simone's approval)
 
 - **Qwen local**: run directly from Antigravity IDE (local Ollama)
-- **DeepSeek**: \`source venv/bin/activate && python3 ds.py \"PROMPT\"\`
-- **Claude (single prompt)**: \`claude -p \"PROMPT\"\`
-- **Claude (batch file editing)**: \`claude --dangerously-skip-permissions -p \"PROMPT\"\` — use for multi-file refactoring, global string replacement, translation tasks
-- **Codex**: \`codex exec --dangerously-bypass-approvals-and-sandbox \"PROMPT\"\`
+- **DeepSeek**: \`source venv/bin/activate && python3 ds.py "PROMPT"\`
+- **Claude (single prompt)**: \`claude -p "PROMPT"\`
+- **Claude (batch file editing)**: \`claude --dangerously-skip-permissions -p "PROMPT"\` — use for multi-file refactoring, global string replacement, translation tasks
+- **Codex**: \`codex exec --dangerously-bypass-approvals-and-sandbox "PROMPT"\`
 - **Gemini**: run directly from Antigravity IDE
 - **Copilot CLI** (\`gh copilot\`): best for shell command suggestions; activated manually by Simone at project completion for docstrings/tests/docs
 
@@ -107,7 +107,7 @@ Practical signals: throttling errors, slow responses, IDE warnings.
 - **NO → proceed with the chosen model**
 - **YES → activate the named fallback from the Role Table (Section 1)**
 
-Always state the reason: *\"Claude seems close to its limit — using Gemini Pro High as fallback.\"*
+Always state the reason: *"Claude seems close to its limit — using Gemini Pro High as fallback."*
 
 If the fallback model is also rate-limited: drop to Qwen local (for coding tasks) or Gemini Flash (for anything else), then flag the situation to Simone.
 
