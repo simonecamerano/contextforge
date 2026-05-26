@@ -25,6 +25,10 @@ vi.mock('./parsers/manifest.js', () => ({
   parseManifest: vi.fn(),
 }));
 
+vi.mock('./parsers/roadmap.js', () => ({
+  parseRoadmap: vi.fn(),
+}));
+
 // ── Typed mock accessors ─────────────────────────────────────────────────────
 
 import fs from 'node:fs/promises';
@@ -32,8 +36,10 @@ import { execSync } from 'node:child_process';
 import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseManifest } from './parsers/manifest.js';
+import { parseRoadmap } from './parsers/roadmap.js';
 
 const mockReadFile = vi.mocked(fs.readFile) as ReturnType<typeof vi.fn>;
+const mockParseRoadmap = vi.mocked(parseRoadmap);
 const mockExecSync = vi.mocked(execSync);
 const mockParseTypeScript = vi.mocked(parseTypeScript);
 const mockParsePython = vi.mocked(parsePython);
@@ -52,6 +58,7 @@ function setupDefaultMocks() {
   mockParseTypeScript.mockResolvedValue(emptyTsResult);
   mockParsePython.mockResolvedValue(emptyPyResult);
   mockParseManifest.mockResolvedValue(emptyManifestResult);
+  mockParseRoadmap.mockReturnValue([]);
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -193,6 +200,7 @@ describe('summarizeProject', () => {
 
     it('collects todos from multiple files', async () => {
       mockReadFile
+        .mockResolvedValueOnce('') // roadmap.md
         .mockResolvedValueOnce('// TODO: first file\n')
         .mockResolvedValueOnce('// FIXME: second file\n');
       mockParseTypeScript.mockResolvedValue(emptyTsResult);
@@ -420,6 +428,7 @@ describe('summarizeProject', () => {
   describe('error handling', () => {
     it('skips files that fail to read and continues processing the rest', async () => {
       mockReadFile
+        .mockResolvedValueOnce('') // roadmap.md
         .mockRejectedValueOnce(new Error('ENOENT'))
         .mockResolvedValueOnce('// TODO: second file\n');
       mockParseTypeScript.mockResolvedValue(emptyTsResult);
@@ -462,6 +471,32 @@ describe('summarizeProject', () => {
         gitCommits: [],
         todos: [],
       });
+    });
+  });
+
+  // ── Roadmap integration ─────────────────────────────────────────────────────
+
+  describe('roadmap integration', () => {
+    it('populates summary.roadmap from roadmap.md when it exists', async () => {
+      const items = [{ text: 'Setup', done: false, section: 'Phase 1' }];
+      mockReadFile.mockResolvedValueOnce('# Roadmap\n- [ ] Setup');
+      mockParseRoadmap.mockReturnValue(items);
+
+      const result = await summarizeProject([], ROOT);
+
+      expect(mockReadFile).toHaveBeenCalledWith(
+        `${ROOT}/roadmap.md`,
+        'utf8'
+      );
+      expect(result.roadmap).toEqual(items);
+    });
+
+    it('sets summary.roadmap to [] when roadmap.md does not exist', async () => {
+      mockReadFile.mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
+
+      const result = await summarizeProject([], ROOT);
+
+      expect(result.roadmap).toEqual([]);
     });
   });
 });

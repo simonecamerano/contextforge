@@ -35,6 +35,7 @@ const baseSummary: ProjectSummary = {
   gitBranch: 'main',
   gitCommits: [],
   todos: [],
+  roadmap: [],
 };
 
 beforeEach(() => {

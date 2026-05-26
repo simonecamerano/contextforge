@@ -4,6 +4,9 @@ import { execSync } from 'node:child_process';
 import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseManifest } from './parsers/manifest.js';
+import { parseRoadmap, RoadmapItem } from './parsers/roadmap.js';
+
+export type { RoadmapItem } from './parsers/roadmap.js';
 
 export interface SummarizedModule {
   path: string;
@@ -33,6 +36,7 @@ export interface ProjectSummary {
   gitBranch: string;
   gitCommits: string[];
   todos: TodoItem[];
+  roadmap: RoadmapItem[];
 }
 
 export async function summarizeProject(files: string[], projectRoot: string): Promise<ProjectSummary> {
@@ -71,7 +75,15 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
     gitBranch,
     gitCommits,
     todos: [],
+    roadmap: [],
   };
+
+  try {
+    const roadmapContent = await fs.readFile(path.join(projectRoot, 'roadmap.md'), 'utf8');
+    summary.roadmap = parseRoadmap(roadmapContent);
+  } catch {
+    summary.roadmap = [];
+  }
 
   const extMap: Record<string, string> = {
     '.ts': 'TypeScript',
