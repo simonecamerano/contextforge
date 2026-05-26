@@ -81,20 +81,25 @@ Gemini executes these 3 steps in sequence for every task before proposing a mode
 
 **First — mandatory Copilot check:** remove from the task any parts reserved for Copilot (comments, docstrings, test suite, docs, global refactoring). Proceed only with the remainder.
 
-Does the remaining task have distinct components that would benefit from different models?
+**Mandatory Deconstruct Rule:**
+Does the remaining task have distinct components (e.g., UI/CSS styling vs. application logic vs. boilerplate)?
+- **YES / MIXED → You MUST split it into microtasks.** Grouping different components (e.g., writing React hooks AND styling the CSS/layout) under a single model is strictly forbidden.
+- **NO → atomic task**, proceed to Step 2 as a single task. If you decide the task is atomic but it involves multiple areas (like logic and visual design), you MUST explicitly justify why it cannot be decomposed.
 
-- **YES → split into microtasks**, each with its assigned model.
-  Natural decomposition examples:
-  - Boilerplate + complex logic → Qwen + Claude
-  - Implementation + task-specific tests → Qwen + Claude
-  - Backend code + UI/CSS → Qwen/Claude + Codex
-  - Architecture + implementation → Claude + Qwen
-
-- **NO → atomic task**, proceed to Step 2 as a single task.
+Natural decomposition examples:
+- Boilerplate + complex logic → Qwen + Claude
+- Implementation + task-specific tests → Qwen + Claude
+- Backend code + UI/CSS → Qwen/Claude + Codex
+- Architecture + implementation → Claude + Qwen
 
 ### Step 2 — Assign roles
 
 For each microtask (or the single task), apply the role table in Section 1.
+
+**Strict specialized routing:**
+- Assign **Qwen (local)** ONLY for boilerplate, simple CRUD, standard components, or light local refactoring.
+- Assign **Claude Pro** or **DeepSeek** for complex logic, algorithms, state management, or multi-file debugging.
+- Assign **Codex / GPT-4o** for CSS, Tailwind, layouts, transitions, or visual frontend styling.
 
 **Ambiguity rule:** if the task falls between two categories, choose the model with the lowest rate limit cost (priority: Qwen, then Gemini Flash, then others).
 
@@ -113,8 +118,12 @@ If the fallback model is also rate-limited: drop to Qwen local (for coding tasks
 
 ---
 
-## 5. Proposal Format
+## 5. Proposal Format & Tool Constraints
 
+### Proposal Tool Constraints
+**CRITICAL:** When presenting a proposal, you MUST NOT include any tool calls (e.g., \`run_command\`, \`write_to_file\`, \`replace_file_content\`) in your response. You must output only the proposal text and stop your turn to wait for Simone's explicit text confirmation in the chat. Any eager execution of tools during the proposal phase is strictly prohibited.
+
+### Proposal Text Format
 The suggestion goes at the start of the response and ends with a confirmation request:
 
 > 💡 **Task:** [task name]
@@ -129,7 +138,7 @@ For tasks decomposed into microtasks, use this extended format:
 > **Decomposition:** yes
 > **Microtask A:** [description] → **Model:** [name] · **Reason:** [why]
 > **Microtask B:** [description] → **Model:** [name] · **Reason:** [why]
-> Shall I proceed with both in sequence?
+> Shall I proceed with the first microtask (Microtask A)?
 
 ---
 
