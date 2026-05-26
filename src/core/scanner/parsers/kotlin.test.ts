@@ -60,6 +60,12 @@ describe('parseKotlin', () => {
       const result = await parseKotlin(FILE, code);
       expect(result.functions).not.toContain('bar');
     });
+
+    it('does not export a private top-level fun', async () => {
+      const result = await parseKotlin(FILE, 'private fun helper() {}');
+      expect(result.functions).not.toContain('helper');
+      expect(result.exports).not.toContain('helper');
+    });
   });
 
   describe('error handling', () => {

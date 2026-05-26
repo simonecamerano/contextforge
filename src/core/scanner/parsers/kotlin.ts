@@ -36,13 +36,15 @@ export async function parseKotlin(_filePath: string, content: string): Promise<K
         continue;
       }
 
-      const funMatch = trimmed.match(/^(?:override\s+)?(?:(?:private|internal|protected)\s+)?fun\s+(\w+)/);
+      const funMatch = trimmed.match(/^(?:override\s+)?(?:(private|internal|protected)\s+)?fun\s+(\w+)/);
       if (funMatch) {
+        const isRestricted = !!funMatch[1];
+        const name = funMatch[2];
         if (isIndented && currentClass) {
-          currentClass.methods.push(funMatch[1]);
-        } else if (!isIndented) {
-          functions.push(funMatch[1]);
-          exports.push(funMatch[1]);
+          currentClass.methods.push(name);
+        } else if (!isIndented && !isRestricted) {
+          functions.push(name);
+          exports.push(name);
           currentClass = null;
         }
       }
