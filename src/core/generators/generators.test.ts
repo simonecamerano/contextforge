@@ -472,4 +472,41 @@ describe('generateAIBrief', () => {
     const result = generateAIBrief(baseSummary);
     expect(result).not.toContain('TRUNCATED');
   });
+
+  describe('open tasks section', () => {
+    it('renders only open tasks with section note', () => {
+      const result = generateAIBrief({
+        ...baseSummary,
+        roadmap: [
+          { text: 'Done task', done: true, section: 'Phase 1' },
+          { text: 'Open task', done: false, section: 'Phase 1' },
+        ],
+      });
+      expect(result).toContain('### Open Tasks');
+      expect(result).toContain('- [ ] Open task *(Phase 1)*');
+      expect(result).not.toContain('Done task');
+    });
+
+    it('omits open tasks section when roadmap is empty', () => {
+      const result = generateAIBrief({ ...baseSummary, roadmap: [] });
+      expect(result).not.toContain('Open Tasks');
+    });
+
+    it('omits open tasks section when all tasks are done', () => {
+      const result = generateAIBrief({
+        ...baseSummary,
+        roadmap: [{ text: 'Done', done: true, section: 'Phase 1' }],
+      });
+      expect(result).not.toContain('Open Tasks');
+    });
+
+    it('renders task without section note when section is undefined', () => {
+      const result = generateAIBrief({
+        ...baseSummary,
+        roadmap: [{ text: 'Unsectioned task', done: false, section: undefined }],
+      });
+      expect(result).toContain('- [ ] Unsectioned task\n');
+      expect(result).not.toContain('*(undefined)*');
+    });
+  });
 });

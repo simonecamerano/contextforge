@@ -59,5 +59,15 @@ export function generateAIBrief(summary: ProjectSummary): string {
     markdown += `\n`;
   }
 
+  const openTasks = summary.roadmap.filter((item) => !item.done);
+  if (openTasks.length > 0) {
+    markdown += `### Open Tasks\n`;
+    for (const item of openTasks) {
+      const sectionNote = item.section ? ` *(${item.section})*` : '';
+      markdown += `- [ ] ${item.text}${sectionNote}\n`;
+    }
+    markdown += `\n`;
+  }
+
   return markdown;
 }
