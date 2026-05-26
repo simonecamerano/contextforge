@@ -172,6 +172,8 @@ For tasks decomposed into microtasks, use this extended format:
 
 When working on a project that has a \`.contextforge/\` directory initialized:
 
+> After \`contextforge init\`, populate \`roadmap.md\` in the project root with the approved plan tasks before running \`contextforge scan\`. ContextForge will track progress automatically in \`active-context.md\` and \`ai-brief.md\`.
+
 1. **Auto-Update Context**: Before formulating a plan, proposing a model, or executing any implementation task, Gemini MUST execute \`contextforge update\` (building the project first if local changes to ContextForge itself were made, e.g., via \`npm run build && contextforge update\`) to ensure the project memory files are fully up-to-date.
 2. **Read Memory Files**: Read the relevant files in the \`.contextforge/\` directory:
    - Always read \`active-context.md\` (to know the branch, latest commits, and active TODOs).
@@ -285,6 +287,28 @@ export function registerInitCommand(program: Command) {
           fs.mkdirSync(rulesDir, { recursive: true });
           fs.writeFileSync(sceltaModelloPath, DEFAULT_SCELTA_MODELLO_TEMPLATE, 'utf8');
           console.log('Created agent rules: .agent/rules/scelta_modello.md');
+        }
+
+        const roadmapPath = path.join(cwd, 'roadmap.md');
+        if (!fs.existsSync(roadmapPath)) {
+          const roadmapTemplate = [
+            '# Roadmap',
+            '',
+            '> Fill in your planned tasks below using `- [ ] task` for open and `- [x] task` for completed.',
+            '> Group tasks under `##` phase headings. ContextForge tracks progress automatically in active-context.md.',
+            '',
+            '## Phase 1 — Setup',
+            '- [ ] ',
+            '',
+            '## Phase 2 — Core Features',
+            '- [ ] ',
+            '',
+            '## Phase 3 — Polish',
+            '- [ ] ',
+            '',
+          ].join('\n');
+          fs.writeFileSync(roadmapPath, roadmapTemplate, 'utf8');
+          console.log('Created roadmap.md template in project root.');
         }
 
         console.log('\nInitialization complete! ContextForge is ready.');
