@@ -264,6 +264,50 @@ describe('generateActiveContext', () => {
     const result = generateActiveContext({ ...baseSummary, todos: [] });
     expect(result).toContain('No TODO or FIXME comments found in the code.');
   });
+
+
+  describe('roadmap section', () => {
+    it('renders roadmap section with progress line when tasks are present', () => {
+      const result = generateActiveContext({
+        ...baseSummary,
+        roadmap: [
+          { text: 'Setup project', done: true, section: 'Phase 1' },
+          { text: 'Add auth', done: false, section: 'Phase 1' },
+          { text: 'Build UI', done: false, section: 'Phase 2' },
+        ],
+      });
+      expect(result).toContain('## Roadmap');
+      expect(result).toContain('**Progress:** 1/3 tasks completed (33%)');
+      expect(result).toContain('### Phase 1');
+      expect(result).toContain('- [x] Setup project');
+      expect(result).toContain('- [ ] Add auth');
+      expect(result).toContain('### Phase 2');
+      expect(result).toContain('- [ ] Build UI');
+    });
+
+    it('omits roadmap section when roadmap is empty', () => {
+      const result = generateActiveContext({ ...baseSummary, roadmap: [] });
+      expect(result).not.toContain('## Roadmap');
+    });
+
+    it('renders tasks with no section without emitting a heading for them', () => {
+      const result = generateActiveContext({
+        ...baseSummary,
+        roadmap: [{ text: 'Unsectioned task', done: false, section: undefined }],
+      });
+      expect(result).toContain('- [ ] Unsectioned task');
+      expect(result).not.toContain('### undefined');
+    });
+
+    it('shows 100% when all tasks are done', () => {
+      const result = generateActiveContext({
+        ...baseSummary,
+        roadmap: [{ text: 'Done', done: true, section: 'Phase 1' }],
+      });
+      expect(result).toContain('1/1 tasks completed (100%)');
+    });
+  });
+
 });
 
 // ---------------------------------------------------------------------------
