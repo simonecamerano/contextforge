@@ -42,9 +42,11 @@ export async function parseKotlin(_filePath: string, content: string): Promise<K
         const name = funMatch[2];
         if (isIndented && currentClass) {
           currentClass.methods.push(name);
-        } else if (!isIndented && !isRestricted) {
-          functions.push(name);
-          exports.push(name);
+        } else if (!isIndented) {
+          if (!isRestricted) {
+            functions.push(name);
+            exports.push(name);
+          }
           currentClass = null;
         }
       }
