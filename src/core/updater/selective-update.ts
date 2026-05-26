@@ -79,7 +79,7 @@ export async function selectiveUpdate(
       generateProjectOverview(summary),
       'utf8'
     );
-    console.log('Aggiornato: .contextforge/project-overview.md');
+    console.log('Updated: .contextforge/project-overview.md');
   }
 
   if (needsArchitecture) {
@@ -88,7 +88,7 @@ export async function selectiveUpdate(
       generateArchitecture(summary),
       'utf8'
     );
-    console.log('Aggiornato: .contextforge/architecture.md');
+    console.log('Updated: .contextforge/architecture.md');
   }
 
   // Always regenerate active-context.md to keep the recent-changes list fresh.
@@ -97,5 +97,5 @@ export async function selectiveUpdate(
     generateActiveContext(summary),
     'utf8'
   );
-  console.log('Aggiornato: .contextforge/active-context.md');
+  console.log('Updated: .contextforge/active-context.md');
 }

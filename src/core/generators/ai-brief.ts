@@ -3,7 +3,7 @@ import { ProjectSummary } from '../scanner/summarizer.js';
 export function generateAIBrief(summary: ProjectSummary, tokenBudget: number): string {
   const CHARS_PER_TOKEN = 4;
   let markdown = `# AI Brief\n\n`;
-  markdown += `Questo documento contiene una sintesi ottimizzata del contesto di progetto per gli LLM.\n\n`;
+  markdown += `This document contains an optimized summary of the project context for LLMs.\n\n`;
 
   markdown += `## Project Overview\n`;
   markdown += `- **Progetto:** ${summary.name}\n`;

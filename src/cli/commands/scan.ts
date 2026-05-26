@@ -12,39 +12,39 @@ import { generateActiveContext } from '../../core/generators/active-context.js';
 export function registerScanCommand(program: Command) {
   program
     .command('scan')
-    .description('Analizza il codebase e genera la memoria del progetto')
+    .description('Analyze the codebase and generate project memory')
     .action(async () => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       const localDir = path.join(contextForgeDir, 'local');
 
       if (!fs.existsSync(contextForgeDir)) {
-        console.error('Errore: ContextForge non è inizializzato in questa directory. Esegui prima "contextforge init".');
+        console.error('Error: ContextForge is not initialized in this directory. Run "contextforge init" first.');
         process.exit(1);
       }
 
-      console.log('Avvio scansione del repository...');
+      console.log('Starting repository scan...');
       try {
         const ignoreEngine = new IgnoreEngine(cwd);
         const files = await walkDirectory(cwd, ignoreEngine);
         
-        console.log(`Trovati ${files.length} file da analizzare.`);
+        console.log(`Found ${files.length} files to analyze.`);
         const summary = await summarizeProject(files, cwd);
 
         // Generate overview
         const overviewContent = generateProjectOverview(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'project-overview.md'), overviewContent, 'utf8');
-        console.log('Aggiornato: .contextforge/project-overview.md');
+        console.log('Updated: .contextforge/project-overview.md');
 
         // Generate architecture
         const architectureContent = generateArchitecture(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'architecture.md'), architectureContent, 'utf8');
-        console.log('Aggiornato: .contextforge/architecture.md');
+        console.log('Updated: .contextforge/architecture.md');
 
         // Generate active context
         const activeContextContent = generateActiveContext(summary);
         fs.writeFileSync(path.join(contextForgeDir, 'active-context.md'), activeContextContent, 'utf8');
-        console.log('Aggiornato: .contextforge/active-context.md');
+        console.log('Updated: .contextforge/active-context.md');
 
         // Compute and save hashes for meta.json
         const fileHashes: Record<string, string> = {};
@@ -68,11 +68,11 @@ export function registerScanCommand(program: Command) {
           JSON.stringify(meta, null, 2),
           'utf8'
         );
-        console.log('Aggiornato: .contextforge/local/meta.json');
+        console.log('Updated: .contextforge/local/meta.json');
         
-        console.log('\nScansione completata con successo!');
+        console.log('\nScan completed successfully!');
       } catch (error) {
-        console.error('Errore durante la scansione:', error);
+        console.error('Error during scan:', error);
         process.exit(1);
       }
     });

@@ -33,7 +33,7 @@ export async function walkDirectory(
       }
     }
   } catch (err) {
-    console.error(`Errore durante la scansione della cartella ${dirPath}:`, err);
+    console.error(`Error scanning folder ${dirPath}:`, err);
   }
 
   return result;

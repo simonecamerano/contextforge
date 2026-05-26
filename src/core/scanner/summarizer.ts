@@ -145,7 +145,7 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
         }
       }
     } catch (err) {
-      console.error(`Errore nel summarizer per il file ${file}:`, err);
+      console.error(`Summarizer error for file ${file}:`, err);
     }
   }
 

@@ -5,36 +5,36 @@ import { Command } from 'commander';
 export function registerInitCommand(program: Command) {
   program
     .command('init')
-    .description('Inizializza ContextForge nel repository corrente')
+    .description('Initialize ContextForge in the current repository')
     .action(() => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       const localDir = path.join(contextForgeDir, 'local');
       
       if (fs.existsSync(contextForgeDir)) {
-        console.warn('Avviso: La cartella .contextforge esiste già in questo repository.');
+        console.warn('Warning: The .contextforge folder already exists in this repository.');
         return;
       }
 
       try {
         fs.mkdirSync(contextForgeDir, { recursive: true });
         fs.mkdirSync(localDir, { recursive: true });
-        console.log('Creata directory .contextforge/ e .contextforge/local/');
+        console.log('Created .contextforge/ and .contextforge/local/ directories');
 
         const markdownFiles = {
-          'project-overview.md': '# Project Overview\n\nPanoramica generale del progetto, descrizione e tecnologie.',
-          'architecture.md': '# Architecture\n\nStruttura dei moduli e decisioni architetturali principali.',
-          'active-context.md': '# Active Context\n\nStato corrente del lavoro, branch attivo e TODO estratti.',
-          'coding-rules.md': '# Coding Rules\n\nLinee guida per la scrittura del codice e stili del progetto.',
-          'technical-decisions.md': '# Technical Decisions\n\nRegistro storico delle decisioni architetturali (ADR).',
-          'open-questions.md': '# Open Questions\n\nDomande aperte, bug tracciati e punti da chiarire.',
-          'ai-brief.md': '# AI Brief\n\nBrief sintetizzato e ottimizzato per il contesto degli LLM.'
+          'project-overview.md': '# Project Overview\n\nGeneral overview of the project, description and technologies.',
+          'architecture.md': '# Architecture\n\nModule structure and main architectural decisions.',
+          'active-context.md': '# Active Context\n\nCurrent work state, active branch and extracted TODOs.',
+          'coding-rules.md': '# Coding Rules\n\nGuidelines for writing code and project style conventions.',
+          'technical-decisions.md': '# Technical Decisions\n\nHistorical record of architectural decisions (ADR).',
+          'open-questions.md': '# Open Questions\n\nOpen questions, tracked bugs and points to clarify.',
+          'ai-brief.md': '# AI Brief\n\nSummarized brief optimized for LLM context.'
         };
 
         for (const [filename, content] of Object.entries(markdownFiles)) {
           const filePath = path.join(contextForgeDir, filename);
           fs.writeFileSync(filePath, content, 'utf8');
-          console.log(`Creato file di memoria: .contextforge/${filename}`);
+          console.log(`Created memory file: .contextforge/${filename}`);
         }
 
         const gitignorePath = path.join(cwd, '.gitignore');
@@ -45,16 +45,16 @@ export function registerInitCommand(program: Command) {
           if (!content.includes(ignoreLine)) {
             const separator = content.endsWith('\n') ? '' : '\n';
             fs.writeFileSync(gitignorePath, `${content}${separator}${ignoreLine}\n`, 'utf8');
-            console.log('Aggiornato .gitignore con la directory locale di ContextForge.');
+            console.log('Updated .gitignore with ContextForge local directory.');
           }
         } else {
           fs.writeFileSync(gitignorePath, `${ignoreLine}\n`, 'utf8');
-          console.log('Creato file .gitignore con la directory locale di ContextForge.');
+          console.log('Created .gitignore with ContextForge local directory.');
         }
 
-        console.log('\nInizializzazione completata! ContextForge è pronto.');
+        console.log('\nInitialization complete! ContextForge is ready.');
       } catch (error) {
-        console.error('Errore durante l\'inizializzazione:', error);
+        console.error('Error during initialization:', error);
         process.exit(1);
       }
     });

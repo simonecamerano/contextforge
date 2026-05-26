@@ -7,15 +7,15 @@ import { getLLMProvider } from '../../providers/factory.js';
 export function registerAskCommand(program: Command) {
   program
     .command('ask <question>')
-    .description('Pone una domanda al progetto usando il contesto locale e un LLM opzionale')
-    .option('-p, --provider <name>', 'Provider LLM (ollama, deepseek, null)')
-    .option('-m, --model <name>', 'Modello LLM')
+    .description('Ask a question about the project using local context and an optional LLM')
+    .option('-p, --provider <name>', 'LLM provider (ollama, deepseek, null)')
+    .option('-m, --model <name>', 'LLM model')
     .action(async (question: string, options) => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
 
       if (!fs.existsSync(contextForgeDir)) {
-        console.error('Errore: ContextForge non è inizializzato. Esegui prima "contextforge init".');
+        console.error('Error: ContextForge is not initialized. Run "contextforge init" first.');
         process.exit(1);
       }
 
@@ -24,12 +24,12 @@ export function registerAskCommand(program: Command) {
       const offline = provider.name === 'null' || !(await provider.isAvailable());
 
       if (offline) {
-        console.log(`\nRisultati locali per: "${question}"\n`);
+        console.log(`\nLocal results for: "${question}"\n`);
         
         // Keep relevant chunks with a score > 0
         const relevantChunks = chunks.filter(c => c.score > 0);
         if (relevantChunks.length === 0) {
-          console.log('Nessun contesto rilevante trovato.');
+          console.log('No relevant context found.');
           return;
         }
         
@@ -45,13 +45,13 @@ export function registerAskCommand(program: Command) {
         .map(c => `### [${c.file}] ${c.section}\n${c.content}`)
         .join('\n\n');
 
-      const systemPrompt = `Sei un assistente tecnico. Rispondi alla domanda dell'utente usando esclusivamente il contesto del progetto fornito di seguito.\n\nCONTESTO:\n${contextBlock}`;
+      const systemPrompt = `You are a technical assistant. Answer the user's question using exclusively the project context provided below.\n\nCONTEXT:\n${contextBlock}`;
 
       try {
         const response = await provider.complete(question, { systemPrompt, maxTokens: 1024 });
         console.log(response);
       } catch (error) {
-        console.error('Errore durante la chiamata LLM:', error);
+        console.error('Error during LLM call:', error);
         process.exit(1);
       }
     });

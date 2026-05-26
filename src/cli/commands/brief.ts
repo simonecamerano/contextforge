@@ -9,24 +9,24 @@ import { generateAIBrief } from '../../core/generators/ai-brief.js';
 export function registerBriefCommand(program: Command) {
   program
     .command('brief')
-    .description('Genera un file brief riassuntivo (.contextforge/ai-brief.md) ottimizzato per LLM')
-    .option('-b, --budget <tokens>', 'Budget di token massimo per il brief', '4000')
+    .description('Generate a summary brief file (.contextforge/ai-brief.md) optimized for LLM')
+    .option('-b, --budget <tokens>', 'Maximum token budget for the brief', '4000')
     .action(async (options) => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       
       if (!fs.existsSync(contextForgeDir)) {
-        console.error('Errore: ContextForge non è inizializzato. Esegui prima "contextforge init".');
+        console.error('Error: ContextForge is not initialized. Run "contextforge init" first.');
         process.exit(1);
       }
 
       const budget = parseInt(options.budget, 10);
       if (isNaN(budget) || budget <= 0) {
-        console.error('Errore: Il budget deve essere un numero intero positivo.');
+        console.error('Error: Budget must be a positive integer.');
         process.exit(1);
       }
 
-      console.log(`Generazione AI Brief con un budget di ${budget} token...`);
+      console.log(`Generating AI Brief with a budget of ${budget} tokens...`);
       
       try {
         const ignoreEngine = new IgnoreEngine(cwd);
@@ -39,10 +39,10 @@ export function registerBriefCommand(program: Command) {
         fs.writeFileSync(briefPath, briefContent, 'utf8');
         
         const estimatedTokens = Math.ceil(briefContent.length / 4);
-        console.log(`Aggiornato: .contextforge/ai-brief.md`);
-        console.log(`Dimensione stimata del brief: ~${estimatedTokens} token (su ${budget} max).`);
+        console.log(`Updated: .contextforge/ai-brief.md`);
+        console.log(`Estimated brief size: ~${estimatedTokens} tokens (out of ${budget} max).`);
       } catch (error) {
-        console.error('Errore durante la generazione del brief:', error);
+        console.error('Error during brief generation:', error);
         process.exit(1);
       }
     });

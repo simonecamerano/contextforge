@@ -16,19 +16,19 @@ interface Meta {
 export function registerUpdateCommand(program: Command) {
   program
     .command('update')
-    .description('Aggiorna selettivamente la memoria del progetto in base ai file modificati')
+    .description('Selectively update project memory based on modified files')
     .action(async () => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       const metaPath = path.join(contextForgeDir, 'local', 'meta.json');
 
       if (!fs.existsSync(contextForgeDir)) {
-        console.error('Errore: ContextForge non è inizializzato. Esegui prima "contextforge init".');
+        console.error('Error: ContextForge is not initialized. Run "contextforge init" first.');
         process.exit(1);
       }
 
       if (!fs.existsSync(metaPath)) {
-        console.error('Errore: Nessun file meta.json trovato. Esegui prima "contextforge scan".');
+        console.error('Error: No meta.json file found. Run "contextforge scan" first.');
         process.exit(1);
       }
 
@@ -39,18 +39,18 @@ export function registerUpdateCommand(program: Command) {
         const ignoreEngine = new IgnoreEngine(cwd);
         const files = await walkDirectory(cwd, ignoreEngine);
 
-        console.log(`Trovati ${files.length} file. Rilevamento modifiche...`);
+        console.log(`Found ${files.length} files. Detecting changes...`);
 
         const changed = await detectChanges(files, cwd, previousHashes);
         const totalChanged = changed.modified.length + changed.added.length + changed.removed.length;
 
         if (totalChanged === 0) {
-          console.log('Nessuna modifica rilevata. La memoria è già aggiornata.');
+          console.log('No changes detected. Memory is already up to date.');
           return;
         }
 
         console.log(
-          `Rilevate modifiche: ${changed.modified.length} modificati, ${changed.added.length} aggiunti, ${changed.removed.length} rimossi.`
+          `Changes detected: ${changed.modified.length} modified, ${changed.added.length} added, ${changed.removed.length} removed.`
         );
 
         const summary = await summarizeProject(files, cwd);
@@ -63,11 +63,11 @@ export function registerUpdateCommand(program: Command) {
         };
 
         fs.writeFileSync(metaPath, JSON.stringify(updatedMeta, null, 2), 'utf8');
-        console.log('Aggiornato: .contextforge/local/meta.json');
+        console.log('Updated: .contextforge/local/meta.json');
 
-        console.log('\nAggiornamento completato con successo!');
+        console.log('\nUpdate completed successfully!');
       } catch (error) {
-        console.error("Errore durante l'aggiornamento:", error);
+        console.error("Error during update:", error);
         process.exit(1);
       }
     });

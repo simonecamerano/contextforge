@@ -11,12 +11,12 @@ function formatDate(date: Date): string {
 export function registerDecisionsCommand(program: Command) {
   program
     .command('decisions')
-    .description('Registra una nuova decisione tecnica (ADR) nella memoria di progetto')
-    .option('-t, --title <title>', 'Titolo della decisione')
-    .option('-c, --context <context>', 'Contesto e situazione di partenza')
-    .option('-d, --decision <decision>', 'La decisione presa')
-    .option('-a, --alternatives <alternatives>', 'Alternative considerate')
-    .option('-g, --consequences <consequences>', 'Conseguenze della decisione')
+    .description('Record a new technical decision (ADR) in the project memory')
+    .option('-t, --title <title>', 'Decision title')
+    .option('-c, --context <context>', 'Context and starting situation')
+    .option('-d, --decision <decision>', 'The decision made')
+    .option('-a, --alternatives <alternatives>', 'Alternatives considered')
+    .option('-g, --consequences <consequences>', 'Consequences of the decision')
     .action(async (options) => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
@@ -24,7 +24,7 @@ export function registerDecisionsCommand(program: Command) {
       const activeContextPath = path.join(contextForgeDir, 'active-context.md');
 
       if (!fs.existsSync(contextForgeDir)) {
-        console.error('Errore: ContextForge non è inizializzato in questa directory. Esegui prima "contextforge init".');
+        console.error('Error: ContextForge is not initialized in this directory. Run "contextforge init" first.');
         process.exit(1);
       }
 
@@ -33,13 +33,13 @@ export function registerDecisionsCommand(program: Command) {
       const rl = readline.createInterface({ input, output });
 
       try {
-        if (!title) title = await rl.question('Titolo della decisione: ');
-        if (!context) context = await rl.question('Contesto (Qual è la situazione?): ');
-        if (!decision) decision = await rl.question('Decisione presa: ');
-        if (!alternatives) alternatives = await rl.question('Alternative considerate: ');
-        if (!consequences) consequences = await rl.question('Conseguenze (Vantaggi/Svantaggi): ');
+        if (!title) title = await rl.question('Decision title: ');
+        if (!context) context = await rl.question('Context (What is the situation?): ');
+        if (!decision) decision = await rl.question('Decision made: ');
+        if (!alternatives) alternatives = await rl.question('Alternatives considered: ');
+        if (!consequences) consequences = await rl.question('Consequences (Pros/Cons): ');
       } catch (err) {
-        console.error('Errore durante la lettura dell\'input:', err);
+        console.error('Error reading input:', err);
         rl.close();
         process.exit(1);
       } finally {
@@ -53,7 +53,7 @@ export function registerDecisionsCommand(program: Command) {
       consequences = consequences.trim();
 
       if (!title || !decision) {
-        console.error('Errore: Il titolo e la decisione sono obbligatori.');
+        console.error('Error: Title and decision are required.');
         process.exit(1);
       }
 
@@ -62,35 +62,35 @@ export function registerDecisionsCommand(program: Command) {
 ## [${todayStr}] ${title}
 
 - **Stato:** Approved
-- **Contesto:** ${context}
-- **Decisione:** ${decision}
-- **Alternative Considerate:** ${alternatives}
-- **Conseguenze:** ${consequences}
+- **Context:** ${context}
+- **Decision:** ${decision}
+- **Alternatives Considered:** ${alternatives}
+- **Consequences:** ${consequences}
 `;
 
       try {
         if (!fs.existsSync(decisionsPath)) {
-          fs.writeFileSync(decisionsPath, `# Technical Decisions\n\nRegistro storico delle decisioni architetturali (ADR).\n`, 'utf8');
+          fs.writeFileSync(decisionsPath, `# Technical Decisions\n\nHistorical record of architectural decisions (ADR).\n`, 'utf8');
         }
         fs.appendFileSync(decisionsPath, adrMarkdown, 'utf8');
-        console.log('Decisione registrata con successo in .contextforge/technical-decisions.md');
+        console.log('Decision recorded successfully in .contextforge/technical-decisions.md');
 
         if (fs.existsSync(activeContextPath)) {
           let activeContext = fs.readFileSync(activeContextPath, 'utf8');
           const decisionLink = `- [${todayStr} - ${title}](file:///.contextforge/technical-decisions.md)`;
           
-          if (activeContext.includes('## Ultime Decisioni')) {
-            activeContext = activeContext.replace('## Ultime Decisioni\n', `## Ultime Decisioni\n\n${decisionLink}\n`);
+          if (activeContext.includes('## Recent Decisions')) {
+            activeContext = activeContext.replace('## Recent Decisions\n', `## Recent Decisions\n\n${decisionLink}\n`);
           } else {
             const separator = activeContext.endsWith('\n') ? '' : '\n';
-            activeContext += `${separator}\n## Ultime Decisioni\n\n${decisionLink}\n`;
+            activeContext += `${separator}\n## Recent Decisions\n\n${decisionLink}\n`;
           }
           
           fs.writeFileSync(activeContextPath, activeContext, 'utf8');
-          console.log('Aggiornato active-context.md con un link alla nuova decisione.');
+          console.log('Updated active-context.md with a link to the new decision.');
         }
       } catch (err) {
-        console.error('Errore durante la scrittura su disco:', err);
+        console.error('Error writing to disk:', err);
         process.exit(1);
       }
     });
