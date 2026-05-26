@@ -19,7 +19,7 @@ export async function parsePHP(_filePath: string, content: string): Promise<PHPR
       const trimmed = line.trim();
       const isIndented = line.startsWith(' ') || line.startsWith('\t');
 
-      const useMatch = trimmed.match(/^use\s+([\w\\]+)(?:\s+as\s+\w+)?;/);
+      const useMatch = !isIndented && trimmed.match(/^use\s+([\w\\]+)(?:\s+as\s+\w+)?;/);
       if (useMatch) {
         const parts = useMatch[1].split('\\');
         imports.push({ from: useMatch[1], names: [parts[parts.length - 1]] });

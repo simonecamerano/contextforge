@@ -42,6 +42,12 @@ describe('parsePHP', () => {
       expect(result.classes[0].methods).toEqual(['bar', 'baz']);
       expect(result.functions).not.toContain('bar');
     });
+
+    it('does not parse a trait use inside a class body as an import', async () => {
+      const code = 'class Foo {\n    use SomeTrait;\n}';
+      const result = await parsePHP(FILE, code);
+      expect(result.imports).toHaveLength(0);
+    });
   });
 
   describe('functions', () => {
