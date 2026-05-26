@@ -41,6 +41,25 @@ describe('parseJava', () => {
       expect(result.classes[0].methods).toEqual(['bar', 'baz']);
       expect(result.functions).not.toContain('bar');
     });
+
+    it('does not add a package-private class to exports', async () => {
+      const result = await parseJava(FILE, 'class Helper {}');
+      expect(result.classes[0].name).toBe('Helper');
+      expect(result.exports).not.toContain('Helper');
+    });
+
+    it('parses an abstract class', async () => {
+      const result = await parseJava(FILE, 'public abstract class Base {}');
+      expect(result.classes[0].name).toBe('Base');
+      expect(result.exports).toContain('Base');
+    });
+  });
+
+  describe('top-level static functions', () => {
+    it('parses a public static top-level method', async () => {
+      const result = await parseJava(FILE, 'public static void main(String[] args) {}');
+      expect(result.functions).toContain('main');
+    });
   });
 
   describe('error handling', () => {

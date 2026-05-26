@@ -28,11 +28,12 @@ export async function parseJava(_filePath: string, content: string): Promise<Jav
         continue;
       }
 
-      const classMatch = trimmed.match(/^(?:public\s+)?(?:(?:abstract|final)\s+)*(?:class|interface|enum)\s+(\w+)/);
+      const classMatch = trimmed.match(/^(public\s+)?(?:(?:abstract|final)\s+)*(?:class|interface)\s+(\w+)/);
       if (classMatch && !isIndented) {
-        currentClass = { name: classMatch[1], methods: [] };
+        const name = classMatch[2];
+        currentClass = { name, methods: [] };
         classes.push(currentClass);
-        exports.push(classMatch[1]);
+        if (classMatch[1]) exports.push(name);
         continue;
       }
 
