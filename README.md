@@ -96,9 +96,18 @@ ContextForge is organised in three layers:
 |---|---|
 | `IgnoreEngine` | Layers `.gitignore` + `.contextforgeignore` + hardcoded defaults (e.g. `node_modules/`, `dist/`). Also filters binary files and files > 500 KB. |
 | `FileWalker` | Recursive directory traversal that delegates every path decision to `IgnoreEngine`. |
-| `Summarizer` | Reads each file and builds a `ProjectSummary` — imports, exports, classes, functions, TODOs, git metadata. |
-| `parsers/typescript` | Regex-based AST-lite extraction for `.ts`/`.tsx`/`.js`/`.jsx`. |
+| `Summarizer` | Reads each file and builds a `ProjectSummary` — imports, exports, classes, functions, TODOs, git metadata. Dispatches structural parsing via `PARSER_REGISTRY`. |
+| `parsers/typescript` | Regex-based extraction for `.ts`/`.tsx`/`.js`/`.jsx` (React). |
 | `parsers/python` | Regex-based extraction for `.py` files. |
+| `parsers/vue` | Extracts `<script>` block from `.vue` SFCs and delegates to `parseTypeScript`. |
+| `parsers/svelte` | Extracts `<script>` block from `.svelte` SFCs and delegates to `parseTypeScript`. |
+| `parsers/php` | Regex-based extraction for `.php` — `use` imports, classes, public methods, functions. |
+| `parsers/ruby` | Regex-based extraction for `.rb` — `require`/`require_relative`, classes, modules, methods. |
+| `parsers/go` | Regex-based extraction for `.go` — import blocks, exported structs, methods, functions. |
+| `parsers/java` | Regex-based extraction for `.java` — imports, public classes/interfaces, methods. |
+| `parsers/kotlin` | Regex-based extraction for `.kt` — imports, classes, objects, top-level functions. |
+| `parsers/csharp` | Regex-based extraction for `.cs` — `using` directives, classes, interfaces, methods. |
+| `parsers/rust` | Regex-based extraction for `.rs` — `use` statements, pub structs/enums, impl methods, pub fns. |
 | `parsers/manifest` | Parses `package.json`, `requirements.txt`, and `pyproject.toml`. |
 
 ### Updater
@@ -159,6 +168,15 @@ ContextForge/
 │   │   │   └── parsers/
 │   │   │       ├── typescript.ts
 │   │   │       ├── python.ts
+│   │   │       ├── vue.ts
+│   │   │       ├── svelte.ts
+│   │   │       ├── php.ts
+│   │   │       ├── ruby.ts
+│   │   │       ├── go.ts
+│   │   │       ├── java.ts
+│   │   │       ├── kotlin.ts
+│   │   │       ├── csharp.ts
+│   │   │       ├── rust.ts
 │   │   │       └── manifest.ts
 │   │   ├── updater/
 │   │   │   ├── change-detector.ts
@@ -647,7 +665,18 @@ npx vitest
 |---|---|
 | `src/core/scanner/file-walker.test.ts` | `FileWalker` |
 | `src/core/scanner/ignore-engine.test.ts` | `IgnoreEngine` |
-| `src/core/scanner/summarizer.test.ts` | `Summarizer` |
+| `src/core/scanner/summarizer.test.ts` | `Summarizer` + registry dispatch |
+| `src/core/scanner/parsers/typescript.test.ts` | TypeScript/React parser |
+| `src/core/scanner/parsers/python.test.ts` | Python parser |
+| `src/core/scanner/parsers/vue.test.ts` | Vue SFC parser |
+| `src/core/scanner/parsers/svelte.test.ts` | Svelte SFC parser |
+| `src/core/scanner/parsers/php.test.ts` | PHP parser |
+| `src/core/scanner/parsers/ruby.test.ts` | Ruby parser |
+| `src/core/scanner/parsers/go.test.ts` | Go parser |
+| `src/core/scanner/parsers/java.test.ts` | Java parser |
+| `src/core/scanner/parsers/kotlin.test.ts` | Kotlin parser |
+| `src/core/scanner/parsers/csharp.test.ts` | C# parser |
+| `src/core/scanner/parsers/rust.test.ts` | Rust parser |
 | `src/core/updater/change-detector.test.ts` | `ChangeDetector` |
 | `src/core/updater/selective-update.test.ts` | `SelectiveUpdate` |
 | `src/core/query/retriever.test.ts` | `retrieveContext` |
@@ -695,7 +724,7 @@ When you run `contextforge init`, it automatically creates an agent rules file a
 ## Roadmap
 
 - [ ] **MCP Server support**: Expose ContextForge scan, update, and search capabilities as a native Model Context Protocol (MCP) server, allowing instant integration as an agent tool in Claude Desktop, Cursor, Windsurf, and other compatible clients.
-- [ ] **AST Parsing Expansion**: Add tree-sitter parsers to support Go, Rust, Java, and other compiled languages in `architecture` scanning.
+- [x] **Multi-language Parser Expansion**: Regex-based structural parsers for Go, Rust, Java, Kotlin, C#, PHP, Ruby, Vue, and Svelte. Language detection (without structural parsing) for SCSS, CSS, Less, HTML, Shell, YAML, and Dockerfile.
 - [ ] **Semantic Context Search**: Upgrade the keyword-frequency retriever with local vector embeddings for semantic query matching.
 
 ---
