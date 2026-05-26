@@ -55,6 +55,13 @@ describe('parseRuby', () => {
       const result = await parseRuby(FILE, code);
       expect(result.classes[0].methods).toContain('create');
     });
+
+    it('does not attribute a top-level def to a preceding class', async () => {
+      const code = 'class Foo\nend\ndef standalone\nend';
+      const result = await parseRuby(FILE, code);
+      expect(result.functions).toContain('standalone');
+      expect(result.classes[0].methods).not.toContain('standalone');
+    });
   });
 
   describe('error handling', () => {

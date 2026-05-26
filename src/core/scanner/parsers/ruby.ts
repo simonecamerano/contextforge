@@ -41,6 +41,10 @@ export async function parseRuby(_filePath: string, content: string): Promise<Rub
           functions.push(defMatch[1]);
         }
       }
+
+      if (trimmed === 'end' && !isIndented) {
+        currentClass = null;
+      }
     }
 
     return { imports, exports, classes, functions };
