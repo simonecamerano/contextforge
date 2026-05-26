@@ -295,6 +295,8 @@ describe('generateActiveContext', () => {
         ...baseSummary,
         roadmap: [{ text: 'Unsectioned task', done: false, section: undefined }],
       });
+      expect(result).toContain('## Roadmap');
+      expect(result).toContain('0/1 tasks completed (0%)');
       expect(result).toContain('- [ ] Unsectioned task');
       expect(result).not.toContain('### undefined');
     });
