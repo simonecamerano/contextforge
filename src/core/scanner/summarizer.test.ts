@@ -221,6 +221,15 @@ describe('summarizeProject', () => {
       expect(result.todos).toHaveLength(0);
     });
 
+    it('does not collect todos from mid-line string literals containing // TODO', async () => {
+      mockReadFile.mockResolvedValue('mockFn.mockResolvedValue(\'// TODO: fixture\');\n');
+      mockParseTypeScript.mockResolvedValue(emptyTsResult);
+
+      const result = await summarizeProject(['src/c.ts'], ROOT);
+
+      expect(result.todos).toHaveLength(0);
+    });
+
     it('records the correct 1-based line number', async () => {
       mockReadFile.mockResolvedValue('line 1\nline 2\nline 3\n// TODO: on line four\n');
       mockParseTypeScript.mockResolvedValue(emptyTsResult);

@@ -1,10 +1,11 @@
 # Technical Decisions
 
-Registro storico delle decisioni architetturali (ADR).
-## [2026-05-25] Scelta di TypeScript e Node.js
+Historical record of architectural decisions (ADR).
 
-- **Stato:** Approved
-- **Contesto:** Necessità di un runtime veloce, tipizzato e portabile per la CLI
-- **Decisione:** Uso di Node.js e TypeScript
-- **Alternative Considerate:** Rust (troppo verboso per MVP), Python (manca di tipizzazione statica nativa performante a runtime)
-- **Conseguenze:** Compilazione veloce in bundle ESM e type-safety su AST parsing
+## [2026-05-25] TypeScript and Node.js
+
+- **Status:** Approved
+- **Context:** Need for a fast, typed, and portable runtime for the CLI
+- **Decision:** Use Node.js and TypeScript
+- **Alternatives Considered:** Rust (too verbose for MVP), Python (lacks performant native static typing at runtime)
+- **Consequences:** Fast compilation to ESM bundle and type-safety on AST parsing

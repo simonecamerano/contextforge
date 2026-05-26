@@ -1,3 +1,3 @@
 # Open Questions
 
-Domande aperte, bug tracciati e punti da chiarire.
+Open questions, tracked bugs and points to clarify.
