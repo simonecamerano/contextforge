@@ -81,7 +81,10 @@ export async function summarizeProject(files: string[], projectRoot: string): Pr
   try {
     const roadmapContent = await fs.readFile(path.join(projectRoot, 'roadmap.md'), 'utf8');
     summary.roadmap = parseRoadmap(roadmapContent);
-  } catch {
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.warn('Warning: could not read roadmap.md:', err);
+    }
     summary.roadmap = [];
   }
 

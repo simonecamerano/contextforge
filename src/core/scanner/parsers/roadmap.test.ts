@@ -63,4 +63,8 @@ describe('parseRoadmap', () => {
     expect(result[1]).toEqual({ text: 'Task B', done: false, section: 'Phase 1' });
     expect(result[2]).toEqual({ text: 'Task C', done: false, section: 'Phase 2' });
   });
+
+  it('ignores placeholder lines with no task text (e.g. from init template)', () => {
+    expect(parseRoadmap('- [ ] ')).toEqual([]);
+  });
 });
