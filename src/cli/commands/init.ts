@@ -1,16 +1,185 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 import { Command } from 'commander';
+import { runScan } from './scan.js';
+
+const DEFAULT_SCELTA_MODELLO_TEMPLATE = `---
+trigger: always_on
+---
+
+# Rule: Optimal Model Selection — 3-Step Protocol
+
+For every programming task, Gemini executes the 3-step protocol described below before proposing any model. The proposal must always wait for Simone's explicit approval.
+
+---
+
+## 1. Model Role Table
+
+| Model | Role | Typical tasks | Fallback | Constraint |
+|---|---|---|---|---|
+| **Qwen (local)** | 🐴 Workhorse | Boilerplate, CRUD, standard components, light local refactoring | DeepSeek | None (local) |
+| **Claude Pro** | 🧠 Architect | Architecture, complex reasoning, multi-file debugging, code review, test design | Gemini Pro High | Rate limit |
+| **Gemini Pro High** | 🔭 Wide-context analyst | Full repo analysis, planning, roadmaps, long-context tasks | Claude | Rate limit |
+| **Gemini Flash** | ⚡ Sprinter | Simple tasks, quick answers, short docs, minor refactoring | Qwen local | Rate limit (higher) |
+| **Codex / GPT-4o** | 🎨 Designer | CSS, Tailwind, layouts, UI, transitions, visual frontend | Gemini Flash | Rate limit |
+| **DeepSeek API** | 💡 Coding specialist | Advanced algorithms, optimization — use when genuinely the best fit | Qwen local | API cost (low) |
+| **Copilot CLI** | 🚜 Batch bulldozer | Full test suite, docstrings, repo docs, global refactoring — **end of project only** | Simone decides manually | Request limit |
+
+---
+
+## 2. Copilot Reserved Rule
+
+The following categories are **exclusively reserved for Copilot CLI** and must not be delegated to other models during development. Duplicating this work wastes calls because Copilot will redo it in one or a few batch operations at the end of the project.
+
+### Tasks reserved for Copilot CLI
+
+| Category | Examples | Allowed exception |
+|---|---|---|
+| Comments & docstrings | Adding comments to functions, docstrings, JSDoc | Only if the comment explains critical non-obvious logic in the current task context |
+| Full test suite | Unit tests, integration tests across all modules | Tests explicitly requested as the current task deliverable |
+| Repo documentation | README, CHANGELOG, wiki, docs/ folder | None — always reserved for Copilot |
+
+> **Note:** Copilot CLI (\`gh copilot\`) is best for suggesting shell commands and GitHub-integrated workflows. For **batch file editing** (e.g. global string replacement, multi-file translation, style uniformity across source files), use **Claude CLI** (\`claude --dangerously-skip-permissions -p \"...\"\`) — it can read and edit files directly.
+
+### Automatic instruction to include in model prompts
+
+Gemini includes this instruction in **every** prompt passed to other models:
+
+> When generating code for this task: do NOT add comments, docstrings, or automatic tests.
+> These will be handled by Copilot CLI at the end of the project.
+> Generate only the working code required by the task.
+> **Language rule: all code, comments, CLI output strings, error messages, and documentation must be written in English. No Italian.**
+
+### Activating Copilot CLI
+
+Copilot CLI activates **only on Simone's explicit trigger** (\"project done, let's run Copilot\"), in this order:
+1. Full test suite generation
+2. Adding docstrings and comments
+3. Repo documentation generation
+4. Light global refactoring
+
+---
+
+## 3. CLI Execution (Only after Simone's approval)
+
+- **Qwen local**: run directly from Antigravity IDE (local Ollama)
+- **DeepSeek**: \`source venv/bin/activate && python3 ds.py \"PROMPT\"\`
+- **Claude (single prompt)**: \`claude -p \"PROMPT\"\`
+- **Claude (batch file editing)**: \`claude --dangerously-skip-permissions -p \"PROMPT\"\` — use for multi-file refactoring, global string replacement, translation tasks
+- **Codex**: \`codex exec --dangerously-bypass-approvals-and-sandbox \"PROMPT\"\`
+- **Gemini**: run directly from Antigravity IDE
+- **Copilot CLI** (\`gh copilot\`): best for shell command suggestions; activated manually by Simone at project completion for docstrings/tests/docs
+
+---
+
+## 4. 3-Step Protocol
+
+Gemini executes these 3 steps in sequence for every task before proposing a model.
+
+### Step 1 — Decompose
+
+**First — mandatory Copilot check:** remove from the task any parts reserved for Copilot (comments, docstrings, test suite, docs, global refactoring). Proceed only with the remainder.
+
+Does the remaining task have distinct components that would benefit from different models?
+
+- **YES → split into microtasks**, each with its assigned model.
+  Natural decomposition examples:
+  - Boilerplate + complex logic → Qwen + Claude
+  - Implementation + task-specific tests → Qwen + Claude
+  - Backend code + UI/CSS → Qwen/Claude + Codex
+  - Architecture + implementation → Claude + Qwen
+
+- **NO → atomic task**, proceed to Step 2 as a single task.
+
+### Step 2 — Assign roles
+
+For each microtask (or the single task), apply the role table in Section 1.
+
+**Ambiguity rule:** if the task falls between two categories, choose the model with the lowest rate limit cost (priority: Qwen, then Gemini Flash, then others).
+
+### Step 3 — Load check
+
+Has the chosen model reached or is it approaching its rate limit in the current session?
+
+Practical signals: throttling errors, slow responses, IDE warnings.
+
+- **NO → proceed with the chosen model**
+- **YES → activate the named fallback from the Role Table (Section 1)**
+
+Always state the reason: *\"Claude seems close to its limit — using Gemini Pro High as fallback.\"*
+
+If the fallback model is also rate-limited: drop to Qwen local (for coding tasks) or Gemini Flash (for anything else), then flag the situation to Simone.
+
+---
+
+## 5. Proposal Format
+
+The suggestion goes at the start of the response and ends with a confirmation request:
+
+> 💡 **Task:** [task name]
+> **Decomposition:** [yes → microtask A → Qwen / microtask B → Claude | no — single task]
+> **Model:** [model name]
+> **Reason:** [why this model for this specific task]
+> Shall I proceed?
+
+For tasks decomposed into microtasks, use this extended format:
+
+> 💡 **Task:** [task name]
+> **Decomposition:** yes
+> **Microtask A:** [description] → **Model:** [name] · **Reason:** [why]
+> **Microtask B:** [description] → **Model:** [name] · **Reason:** [why]
+> Shall I proceed with both in sequence?
+
+---
+
+## 6. General Development Rules
+
+1. **Code Comments**: Every modified or created file must include useful comments explaining the **logic** and decisions made, not the obvious syntax. *(Exception: during active development, skip routine comments — they will be added by Copilot CLI at project completion. Only include comments that explain critical non-obvious logic, as outlined in Section 2.)*
+2. **Post-task QA**: At the end of every task, run a thorough check on the diff and written code. Where possible, verify the implementation actually works (e.g., starting the project, testing it in the browser, checking for console errors).
+3. **Planning, Tests and Roadmap (New Projects)**:
+   - Every new project must include sufficient test coverage, planned from the start.
+   - When a plan for a new project is approved, generate a **Roadmap** artifact with checkable tasks (\`[ ]\`) and keep it updated as work progresses.
+4. **Constant Best Practices**: Every project or component must be developed and optimized following best practices for **SEO**, **GEO** (localization), **Accessibility** (A11y, ARIA) and **Performance** (load optimization).
+5. **English Only**: All code, comments, JSDoc, CLI output strings, error messages, template content, and documentation must be written in **English**. This applies to every model and to Copilot CLI. No Italian in any project artifact.
+
+---
+
+## 7. Context-Aware Agent Workflow (ContextForge Integration)
+
+When working on a project that has a \`.contextforge/\` directory initialized:
+
+1. **Auto-Update Context**: Before formulating a plan, proposing a model, or executing any implementation task, Gemini MUST execute \`contextforge update\` (building the project first if local changes to ContextForge itself were made, e.g., via \`npm run build && contextforge update\`) to ensure the project memory files are fully up-to-date.
+2. **Read Memory Files**: Read the relevant files in the \`.contextforge/\` directory:
+   - Always read \`active-context.md\` (to know the branch, latest commits, and active TODOs).
+   - Always read \`architecture.md\` (to have a structural map of files, classes, and exports).
+   - Read \`project-overview.md\` if the task involves project configuration or general overview.
+   - Read \`technical-decisions.md\` (ADRs) if the task is an architectural refactoring or design change.
+   - Read \`ai-brief.md\` or query ContextForge context if needing compressed context for external models.
+3. **Context Injection**: Use this extracted context directly to construct high-quality, token-efficient prompts for the target implementing models (Claude, Qwen, DeepSeek, etc.). Do not pass the entire codebase if the task can be solved using the relevant modular context provided by ContextForge.
+`;
 
 export function registerInitCommand(program: Command) {
   program
     .command('init')
     .description('Initialize ContextForge in the current repository')
-    .action(() => {
+    .action(async () => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       const localDir = path.join(contextForgeDir, 'local');
       
+      // 1. Auto Git Init if not present
+      const gitDir = path.join(cwd, '.git');
+      if (!fs.existsSync(gitDir)) {
+        try {
+          console.log('Initializing local git repository...');
+          execSync('git init', { stdio: 'ignore' });
+          console.log('Git repository initialized.');
+        } catch (error) {
+          console.warn('Warning: Could not initialize Git repository automatically. Make sure Git is installed.');
+        }
+      }
+
       if (fs.existsSync(contextForgeDir)) {
         console.warn('Warning: The .contextforge folder already exists in this repository.');
         return;
@@ -52,7 +221,23 @@ export function registerInitCommand(program: Command) {
           console.log('Created .gitignore with ContextForge local directory.');
         }
 
+        // 2. Auto-Scaffold .agent/rules/scelta_modello.md
+        const agentDir = path.join(cwd, '.agent');
+        const rulesDir = path.join(agentDir, 'rules');
+        const sceltaModelloPath = path.join(rulesDir, 'scelta_modello.md');
+
+        if (!fs.existsSync(sceltaModelloPath)) {
+          fs.mkdirSync(rulesDir, { recursive: true });
+          fs.writeFileSync(sceltaModelloPath, DEFAULT_SCELTA_MODELLO_TEMPLATE, 'utf8');
+          console.log('Created agent rules: .agent/rules/scelta_modello.md');
+        }
+
         console.log('\nInitialization complete! ContextForge is ready.');
+
+        // 3. Auto-Scan
+        console.log('\nRunning initial codebase scan...');
+        await runScan(cwd);
+
       } catch (error) {
         console.error('Error during initialization:', error);
         process.exit(1);
