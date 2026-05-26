@@ -175,7 +175,7 @@ export function registerInitCommand(program: Command) {
           console.log('Initializing local git repository...');
           execSync('git init', { stdio: 'ignore' });
           console.log('Git repository initialized.');
-        } catch (error) {
+        } catch {
           console.warn('Warning: Could not initialize Git repository automatically. Make sure Git is installed.');
         }
       }
