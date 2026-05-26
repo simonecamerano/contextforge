@@ -221,14 +221,16 @@ export function registerInitCommand(program: Command) {
             console.log('LLM Provider configured: DeepSeek.');
             break;
           }
-          case '2':
+          case '2': {
             fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=ollama\nOLLAMA_HOST=http://localhost:11434\nOLLAMA_MODEL=llama3\n`, 'utf8');
             console.log('LLM Provider configured: Ollama.');
             break;
-          case '3':
+          }
+          case '3': {
             fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
             console.log('LLM Provider configured: Offline.');
             break;
+          }
           default:
             console.log('Invalid choice. Defaulting to Offline.');
             fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
