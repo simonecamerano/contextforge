@@ -621,6 +621,24 @@ describe('summarizeProject', () => {
       expect(result.tsModules).toHaveLength(1);
     });
 
+    it.each([
+      ['App.svelte', 'parseSvelte', '.svelte', mockParseSvelte],
+      ['app.rb', 'parseRuby', '.rb', mockParseRuby],
+      ['Main.java', 'parseJava', '.java', mockParseJava],
+      ['Main.kt', 'parseKotlin', '.kt', mockParseKotlin],
+      ['Program.cs', 'parseCSharp', '.cs', mockParseCSharp],
+      ['main.rs', 'parseRust', '.rs', mockParseRust],
+    ] as const)('calls correct parser for %s and pushes to tsModules', async (file, _parserName, _ext, mockParser) => {
+      mockReadFile.mockResolvedValue('');
+      (mockParser as ReturnType<typeof vi.fn>).mockResolvedValue(emptyTsResult);
+
+      const result = await summarizeProject([file], ROOT);
+
+      expect(mockParser).toHaveBeenCalledWith(file, expect.any(String));
+      expect(result.tsModules).toHaveLength(1);
+      expect(result.tsModules[0].path).toBe(file);
+    });
+
     it('does not push to tsModules for detection-only extensions (e.g. .scss)', async () => {
       mockReadFile.mockResolvedValue('.body { color: red; }');
 
