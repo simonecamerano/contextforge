@@ -14,8 +14,20 @@ export async function parseGo(_filePath: string, content: string): Promise<GoRes
     const functions: string[] = [];
 
     const lines = content.split('\n');
-    let i = 0;
 
+    // Pass 1: collect all struct declarations so method receivers can be matched
+    // regardless of declaration order within the file.
+    for (const line of lines) {
+      const structMatch = line.trim().match(/^type\s+(\w+)\s+struct/);
+      if (structMatch) {
+        const name = structMatch[1];
+        classes.push({ name, methods: [] });
+        if (/^[A-Z]/.test(name)) exports.push(name);
+      }
+    }
+
+    // Pass 2: collect imports, methods, and exported functions.
+    let i = 0;
     while (i < lines.length) {
       const trimmed = lines[i].trim();
 
@@ -26,7 +38,7 @@ export async function parseGo(_filePath: string, content: string): Promise<GoRes
         continue;
       }
 
-      if (trimmed === 'import (' || trimmed.startsWith('import (')) {
+      if (trimmed.startsWith('import (')) {
         i++;
         while (i < lines.length && !lines[i].trim().startsWith(')')) {
           const pkgMatch = lines[i].trim().match(/(?:\w+\s+)?"([^"]+)"/);
@@ -37,11 +49,8 @@ export async function parseGo(_filePath: string, content: string): Promise<GoRes
         continue;
       }
 
-      const structMatch = trimmed.match(/^type\s+(\w+)\s+struct/);
-      if (structMatch) {
-        const name = structMatch[1];
-        classes.push({ name, methods: [] });
-        if (/^[A-Z]/.test(name)) exports.push(name);
+      // Skip struct declarations — already collected in pass 1.
+      if (trimmed.match(/^type\s+\w+\s+struct/)) {
         i++;
         continue;
       }

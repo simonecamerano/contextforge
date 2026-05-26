@@ -45,6 +45,13 @@ describe('parseGo', () => {
       expect(result.classes[0].methods).toContain('Start');
       expect(result.functions).not.toContain('Start');
     });
+
+    it('parses a method declared before its struct', async () => {
+      const code = 'func (s *Server) Start() {}\ntype Server struct {}';
+      const result = await parseGo(FILE, code);
+      expect(result.classes[0].methods).toContain('Start');
+      expect(result.functions).not.toContain('Start');
+    });
   });
 
   describe('exported functions', () => {
