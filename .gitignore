@@ -7,3 +7,5 @@ coverage/
 .env
 *.cast
 demo.sh
+scratch/
+

@@ -14,7 +14,7 @@ export function generateProjectOverview(summary: ProjectSummary): string {
     }
     markdown += `\n`;
   } else {
-    markdown += `Nessuno script configurato.\n\n`;
+    markdown += `No scripts configured.\n\n`;
   }
 
   markdown += `## Dependencies\n\n`;

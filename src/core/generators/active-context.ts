@@ -4,26 +4,26 @@ export function generateActiveContext(summary: ProjectSummary): string {
   let markdown = `# Active Context\n\n`;
   
   markdown += `## Git Status\n\n`;
-  markdown += `- **Branch Corrente:** \`${summary.gitBranch || 'non rilevato'}\`\n\n`;
+  markdown += `- **Current Branch:** \`${summary.gitBranch || 'not detected'}\`\n\n`;
   
-  markdown += `## Ultimi 10 Commit\n\n`;
+  markdown += `## Recent 10 Commits\n\n`;
   if (summary.gitCommits.length > 0) {
     for (const commit of summary.gitCommits) {
       markdown += `- \`${commit}\`\n`;
     }
     markdown += `\n`;
   } else {
-    markdown += `Nessun commit recente trovato o repository Git non configurato.\n\n`;
+    markdown += `No recent commits found or Git repository not configured.\n\n`;
   }
 
-  markdown += `## Attività e Task nel Codice (TODO / FIXME)\n\n`;
+  markdown += `## Active Tasks in Code (TODO / FIXME)\n\n`;
   if (summary.todos.length > 0) {
-    markdown += `| File | Linea | Tipo | Messaggio |\n|---|---|---|---|\n`;
+    markdown += `| File | Line | Type | Message |\n|---|---|---|---|\n`;
     for (const todo of summary.todos) {
       markdown += `| [${todo.file}](file:///${todo.file}) | ${todo.line} | **${todo.type}** | ${todo.text} |\n`;
     }
   } else {
-    markdown += `Nessun commento TODO o FIXME trovato nel codice.\n`;
+    markdown += `No TODO or FIXME comments found in the code.\n`;
   }
 
   return markdown;

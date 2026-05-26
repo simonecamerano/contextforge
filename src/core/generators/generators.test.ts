@@ -46,7 +46,7 @@ describe('generateProjectOverview', () => {
 
   it('renders fallback message when no scripts are defined', () => {
     const result = generateProjectOverview(baseSummary);
-    expect(result).toContain('Nessuno script configurato.');
+    expect(result).toContain('No scripts configured.');
   });
 
   it('renders production dependencies section', () => {
@@ -93,8 +93,8 @@ describe('generateArchitecture', () => {
 
   it('omits module sections when both tsModules and pythonModules are empty', () => {
     const result = generateArchitecture(baseSummary);
-    expect(result).not.toContain('## Moduli TypeScript');
-    expect(result).not.toContain('## Moduli Python');
+    expect(result).not.toContain('## TypeScript / JavaScript Modules');
+    expect(result).not.toContain('## Python Modules');
   });
 
   it('renders TypeScript module section with exports', () => {
@@ -110,13 +110,13 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('## Moduli TypeScript / JavaScript');
+    expect(result).toContain('## TypeScript / JavaScript Modules');
     expect(result).toContain('src/index.ts');
     expect(result).toContain('`foo`');
     expect(result).toContain('`bar`');
   });
 
-  it('shows *nessuno* when a TypeScript module has no exports', () => {
+  it('shows *none* when a TypeScript module has no exports', () => {
     const result = generateArchitecture({
       ...baseSummary,
       tsModules: [
@@ -129,7 +129,7 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('*nessuno*');
+    expect(result).toContain('*none*');
   });
 
   it('renders TypeScript module classes with methods', () => {
@@ -145,7 +145,7 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('**Classi:**');
+    expect(result).toContain('**Classes:**');
     expect(result).toContain('`MyService`');
     expect(result).toContain('`run`');
     expect(result).toContain('`stop`');
@@ -164,7 +164,7 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('**Funzioni:**');
+    expect(result).toContain('**Functions:**');
     expect(result).toContain('`helper`');
     expect(result).toContain('`parse`');
   });
@@ -182,7 +182,7 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('**Imports da:**');
+    expect(result).toContain('**Imports from:**');
     expect(result).toContain('`node:fs`');
   });
 
@@ -199,7 +199,7 @@ describe('generateArchitecture', () => {
         },
       ],
     });
-    expect(result).toContain('## Moduli Python');
+    expect(result).toContain('## Python Modules');
     expect(result).toContain('src/main.py');
     expect(result).toContain('`Processor`');
     expect(result).toContain('`run`');
@@ -224,7 +224,7 @@ describe('generateActiveContext', () => {
 
   it('shows fallback when git branch is missing', () => {
     const result = generateActiveContext({ ...baseSummary, gitBranch: '' });
-    expect(result).toContain('`non rilevato`');
+    expect(result).toContain('`not detected`');
   });
 
   it('renders recent commits when present', () => {
@@ -238,7 +238,7 @@ describe('generateActiveContext', () => {
 
   it('renders fallback message when no commits', () => {
     const result = generateActiveContext({ ...baseSummary, gitCommits: [] });
-    expect(result).toContain('Nessun commit recente trovato');
+    expect(result).toContain('No recent commits found');
   });
 
   it('renders TODO/FIXME table when todos are present', () => {
@@ -249,7 +249,7 @@ describe('generateActiveContext', () => {
         { file: 'src/utils.ts', line: 42, type: 'FIXME', text: 'handle edge case' },
       ],
     });
-    expect(result).toContain('| File | Linea | Tipo | Messaggio |');
+    expect(result).toContain('| File | Line | Type | Message |');
     expect(result).toContain('src/index.ts');
     expect(result).toContain('**TODO**');
     expect(result).toContain('refactor this');
@@ -260,7 +260,7 @@ describe('generateActiveContext', () => {
 
   it('renders fallback message when no todos', () => {
     const result = generateActiveContext({ ...baseSummary, todos: [] });
-    expect(result).toContain('Nessun commento TODO o FIXME trovato nel codice.');
+    expect(result).toContain('No TODO or FIXME comments found in the code.');
   });
 });
 
@@ -286,9 +286,9 @@ describe('generateAIBrief', () => {
     expect(result).toContain('develop');
   });
 
-  it('shows "non rilevato" when git branch is empty', () => {
+  it('shows "not detected" when git branch is empty', () => {
     const result = generateAIBrief({ ...baseSummary, gitBranch: '' }, TOKEN_BUDGET);
-    expect(result).toContain('non rilevato');
+    expect(result).toContain('not detected');
   });
 
   it('renders all dependencies when there are 10 or fewer', () => {
@@ -296,7 +296,7 @@ describe('generateAIBrief', () => {
       Array.from({ length: 5 }, (_, i) => [`dep-${i}`, `^${i}.0.0`]),
     );
     const result = generateAIBrief({ ...baseSummary, dependencies: deps }, TOKEN_BUDGET);
-    expect(result).toContain('### Dipendenze Principali');
+    expect(result).toContain('### Key Dependencies');
     for (const key of Object.keys(deps)) {
       expect(result).toContain(`\`${key}\``);
     }
@@ -307,7 +307,7 @@ describe('generateAIBrief', () => {
       Array.from({ length: 15 }, (_, i) => [`dep-${i}`, `^${i}.0.0`]),
     );
     const result = generateAIBrief({ ...baseSummary, dependencies: deps }, TOKEN_BUDGET);
-    expect(result).toContain('e altri');
+    expect(result).toContain('and');
   });
 
   it('renders TypeScript module details within budget', () => {
@@ -326,11 +326,11 @@ describe('generateAIBrief', () => {
       },
       TOKEN_BUDGET,
     );
-    expect(result).toContain('#### Moduli TypeScript/JavaScript');
+    expect(result).toContain('#### TypeScript/JavaScript Modules');
     expect(result).toContain('src/api.ts');
     expect(result).toContain('**Exports:**');
     expect(result).toContain('`createServer`');
-    expect(result).toContain('**Classi:**');
+    expect(result).toContain('**Classes:**');
     expect(result).toContain('`ApiServer`');
   });
 
@@ -350,7 +350,7 @@ describe('generateAIBrief', () => {
       },
       TOKEN_BUDGET,
     );
-    expect(result).toContain('+ altri');
+    expect(result).toContain('others');
   });
 
   it('renders Python module details within budget', () => {
@@ -369,7 +369,7 @@ describe('generateAIBrief', () => {
       },
       TOKEN_BUDGET,
     );
-    expect(result).toContain('#### Moduli Python');
+    expect(result).toContain('#### Python Modules');
     expect(result).toContain('scripts/process.py');
     expect(result).toContain('`Processor`');
     expect(result).toContain('`run`');
@@ -391,7 +391,7 @@ describe('generateAIBrief', () => {
       },
       TOKEN_BUDGET,
     );
-    expect(result).toContain('+ altre');
+    expect(result).toContain('others');
   });
 
   it('renders all todos when 5 or fewer', () => {
@@ -402,7 +402,7 @@ describe('generateAIBrief', () => {
       text: `task ${i}`,
     }));
     const result = generateAIBrief({ ...baseSummary, todos }, TOKEN_BUDGET);
-    expect(result).toContain('### Todo Attivi');
+    expect(result).toContain('### Active Todos');
     for (const todo of todos) {
       expect(result).toContain(todo.text);
     }
@@ -416,8 +416,8 @@ describe('generateAIBrief', () => {
       text: `task ${i}`,
     }));
     const result = generateAIBrief({ ...baseSummary, todos }, TOKEN_BUDGET);
-    expect(result).toContain('e altri');
-    expect(result).toContain('todo nel codice');
+    expect(result).toContain('and');
+    expect(result).toContain('other todos in the code');
   });
 
   it('truncates output when token budget is exceeded', () => {

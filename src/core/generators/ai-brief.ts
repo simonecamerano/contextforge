@@ -6,22 +6,22 @@ export function generateAIBrief(summary: ProjectSummary, tokenBudget: number): s
   markdown += `This document contains an optimized summary of the project context for LLMs.\n\n`;
 
   markdown += `## Project Overview\n`;
-  markdown += `- **Progetto:** ${summary.name}\n`;
-  markdown += `- **Linguaggi:** ${summary.languages.join(', ')}\n`;
-  markdown += `- **Branch:** ${summary.gitBranch || 'non rilevato'}\n\n`;
+  markdown += `- **Project:** ${summary.name}\n`;
+  markdown += `- **Languages:** ${summary.languages.join(', ')}\n`;
+  markdown += `- **Branch:** ${summary.gitBranch || 'not detected'}\n\n`;
 
   const estimatedCurrentTokens = () => Math.ceil(markdown.length / CHARS_PER_TOKEN);
 
   const deps = Object.keys(summary.dependencies);
   if (deps.length > 0) {
-    markdown += `### Dipendenze Principali\n`;
+    markdown += `### Key Dependencies\n`;
     const budgetRemaining = tokenBudget - estimatedCurrentTokens();
     if (budgetRemaining > 150 && deps.length > 10) {
       const mainDeps = deps.slice(0, 8);
       for (const dep of mainDeps) {
         markdown += `- \`${dep}\`: \`${summary.dependencies[dep]}\`\n`;
       }
-      markdown += `- *e altri ${deps.length - 8} pacchetti.*\n`;
+      markdown += `- *and ${deps.length - 8} other packages.*\n`;
     } else {
       for (const dep of deps) {
         markdown += `- \`${dep}\`: \`${summary.dependencies[dep]}\`\n`;
@@ -32,47 +32,47 @@ export function generateAIBrief(summary: ProjectSummary, tokenBudget: number): s
 
   const allModulesCount = summary.tsModules.length + summary.pythonModules.length;
   if (allModulesCount > 0) {
-    markdown += `### Struttura dei Moduli\n`;
+    markdown += `### Module Structure\n`;
     
     if (summary.tsModules.length > 0) {
-      markdown += `#### Moduli TypeScript/JavaScript\n`;
+      markdown += `#### TypeScript/JavaScript Modules\n`;
       for (const mod of summary.tsModules) {
         if (tokenBudget - estimatedCurrentTokens() < 200) {
-          markdown += `- \`${mod.path}\`: (${mod.exports.length} export)\n`;
+          markdown += `- \`${mod.path}\`: (${mod.exports.length} exports)\n`;
           continue;
         }
 
         markdown += `- \`${mod.path}\`:\n`;
         if (mod.exports.length > 0) {
           const exportList = mod.exports.length > 5 
-            ? `${mod.exports.slice(0, 4).map(e => `\`${e}\``).join(', ')} (+ altri ${mod.exports.length - 4})`
+            ? `${mod.exports.slice(0, 4).map(e => `\`${e}\``).join(', ')} (+ ${mod.exports.length - 4} others)`
             : mod.exports.map(e => `\`${e}\``).join(', ');
           markdown += `  - **Exports:** ${exportList}\n`;
         }
         if (mod.classes.length > 0) {
-          markdown += `  - **Classi:** ${mod.classes.map(c => `\`${c.name}\``).join(', ')}\n`;
+          markdown += `  - **Classes:** ${mod.classes.map(c => `\`${c.name}\``).join(', ')}\n`;
         }
       }
       markdown += `\n`;
     }
 
     if (summary.pythonModules.length > 0) {
-      markdown += `#### Moduli Python\n`;
+      markdown += `#### Python Modules\n`;
       for (const mod of summary.pythonModules) {
         if (tokenBudget - estimatedCurrentTokens() < 200) {
-          markdown += `- \`${mod.path}\`: (${mod.exports.length} export)\n`;
+          markdown += `- \`${mod.path}\`: (${mod.exports.length} exports)\n`;
           continue;
         }
 
         markdown += `- \`${mod.path}\`:\n`;
         if (mod.classes.length > 0) {
-          markdown += `  - **Classi:** ${mod.classes.map(c => `\`${c.name}\``).join(', ')}\n`;
+          markdown += `  - **Classes:** ${mod.classes.map(c => `\`${c.name}\``).join(', ')}\n`;
         }
         if (mod.functions.length > 0) {
           const funcList = mod.functions.length > 5 
-            ? `${mod.functions.slice(0, 4).map(f => `\`${f}\``).join(', ')} (+ altre ${mod.functions.length - 4})`
+            ? `${mod.functions.slice(0, 4).map(f => `\`${f}\``).join(', ')} (+ ${mod.functions.length - 4} others)`
             : mod.functions.map(f => `\`${f}\``).join(', ');
-          markdown += `  - **Funzioni:** ${funcList}\n`;
+          markdown += `  - **Functions:** ${funcList}\n`;
         }
       }
       markdown += `\n`;
@@ -80,14 +80,14 @@ export function generateAIBrief(summary: ProjectSummary, tokenBudget: number): s
   }
 
   if (summary.todos.length > 0) {
-    markdown += `### Todo Attivi\n`;
+    markdown += `### Active Todos\n`;
     const budgetRemaining = tokenBudget - estimatedCurrentTokens();
     if (budgetRemaining > 150 && summary.todos.length > 5) {
       const mainTodos = summary.todos.slice(0, 5);
       for (const todo of mainTodos) {
         markdown += `- [${todo.file}:${todo.line}] **${todo.type}**: ${todo.text}\n`;
       }
-      markdown += `- *e altri ${summary.todos.length - 5} todo nel codice.*\n`;
+      markdown += `- *and ${summary.todos.length - 5} other todos in the code.*\n`;
     } else {
       for (const todo of summary.todos) {
         markdown += `- [${todo.file}:${todo.line}] **${todo.type}**: ${todo.text}\n`;
