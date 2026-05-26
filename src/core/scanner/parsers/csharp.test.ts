@@ -62,6 +62,13 @@ describe('parseCSharp', () => {
     });
   });
 
+  describe('top-level static functions', () => {
+    it('parses a public static function outside a class', async () => {
+      const result = await parseCSharp(FILE, 'public static string ComputeHash(string input) {}');
+      expect(result.functions).toContain('ComputeHash');
+    });
+  });
+
   describe('error handling', () => {
     it('returns empty result for empty string', async () => {
       const result = await parseCSharp(FILE, '');
