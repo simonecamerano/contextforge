@@ -19,6 +19,8 @@ export async function parseJava(_filePath: string, content: string): Promise<Jav
       const trimmed = line.trim();
       const isIndented = line.startsWith(' ') || line.startsWith('\t');
 
+      if (trimmed.startsWith('import static ')) continue;
+
       const importMatch = trimmed.match(/^import\s+([\w.*]+);/);
       if (importMatch) {
         const parts = importMatch[1].split('.');

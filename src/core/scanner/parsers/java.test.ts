@@ -20,6 +20,11 @@ describe('parseJava', () => {
       const result = await parseJava(FILE, 'import java.util.*;');
       expect(result.imports[0].names).toEqual(['*']);
     });
+
+    it('skips static imports', async () => {
+      const result = await parseJava(FILE, 'import static java.util.Collections.sort;');
+      expect(result.imports).toHaveLength(0);
+    });
   });
 
   describe('classes and interfaces', () => {
@@ -52,6 +57,19 @@ describe('parseJava', () => {
       const result = await parseJava(FILE, 'public abstract class Base {}');
       expect(result.classes[0].name).toBe('Base');
       expect(result.exports).toContain('Base');
+    });
+
+    it('attributes methods to the correct class in a multi-class file', async () => {
+      const code = 'public class A {\n    public void foo() {}\n}\npublic class B {\n    public void bar() {}\n}';
+      const result = await parseJava(FILE, code);
+      expect(result.classes[0].methods).toEqual(['foo']);
+      expect(result.classes[1].methods).toEqual(['bar']);
+    });
+
+    it('does not capture protected or private methods', async () => {
+      const code = 'public class Foo {\n    protected void helper() {}\n    private void secret() {}\n}';
+      const result = await parseJava(FILE, code);
+      expect(result.classes[0].methods).toHaveLength(0);
     });
   });
 
