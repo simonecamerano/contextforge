@@ -21,6 +21,11 @@ trigger: always_on
 
 # Rule: Optimal Model Selection — 3-Step Protocol
 
+> ⚠️ **HARD CONSTRAINTS — leggi prima di tutto il resto:**
+> 1. **Rispondi sempre a Simone in italiano.** L'inglese è riservato agli artefatti di codice (variabili, commenti, documentazione tecnica), mai alla chat.
+> 2. **Non implementare mai tu stesso.** Se un task è assegnato a un altro modello, chiamalo via CLI. Nessuna eccezione salvo Simone dica esplicitamente "fallo tu".
+> 3. **Includi sempre il contesto ContextForge** nei prompt passati ai modelli (vedi Section 3 per il formato esatto del comando).
+
 For every programming task, Gemini executes the 3-step protocol described below before proposing any model. The proposal must always wait for Simone's explicit approval.
 
 ---
@@ -74,11 +79,39 @@ Copilot CLI activates **only on Simone's explicit trigger** ("project done, let'
 
 ## 3. CLI Execution & Strict Delegation (Only after Simone's approval)
 
-- **Qwen local**: run directly from Antigravity IDE (local Ollama)
-- **DeepSeek**: \`source venv/bin/activate && python3 ds.py "PROMPT"\`
-- **Claude (single prompt)**: \`claude -p "PROMPT"\`
-- **Claude (batch file editing)**: \`claude --dangerously-skip-permissions -p "PROMPT"\` — use for multi-file refactoring, global string replacement, translation tasks
-- **Codex**: \`codex exec --dangerously-bypass-approvals-and-sandbox "PROMPT"\`
+Always inject ContextForge context into the prompt using this format:
+
+\`\`\`bash
+# Claude
+claude -p "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]"
+
+# Claude (batch file editing — multi-file refactoring, global replacement)
+claude --dangerously-skip-permissions -p "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]"
+
+# Codex
+codex exec --dangerously-bypass-approvals-and-sandbox "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]"
+
+# DeepSeek
+source venv/bin/activate && python3 ds.py "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]"
+\`\`\`
+
+- **Qwen local**: run directly from Antigravity IDE (local Ollama) — paste \`ai-brief.md\` content manually in the context field
 - **Gemini**: run directly from Antigravity IDE
 - **Copilot CLI** (\`gh copilot\`): best for shell command suggestions; activated manually by Simone at project completion for docstrings/tests/docs
 

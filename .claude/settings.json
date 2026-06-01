@@ -7,7 +7,9 @@
       "Bash(node --input-type=module)",
       "Bash(awk '/PARSER_REGISTRY/,/^};/' src/core/scanner/summarizer.ts)",
       "Bash(awk '/extMap/,/^  };/' src/core/scanner/summarizer.ts)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(find \"/home/simone/Documenti/start2impact/Progetti personali/ContextForge\" -name \"scelta_modello.md\" 2>/dev/null; find /home/simone -name \"scelta_modello.md\" 2>/dev/null | head -5)",
+      "Read(//home/simone/**)"
     ],
     "additionalDirectories": [
       "/home/simone/Documenti/start2impact/Progetti\\ personali/ContextForge/src/core/scanner/parsers"
