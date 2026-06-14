@@ -23,6 +23,11 @@ This document provides a structured overview of the project's source modules.
 - **Functions:** `formatDate`, `registerDecisionsCommand`
 - **Imports from:** `node:fs`, `node:path`, `node:readline/promises`, `node:process`, `commander`
 
+### [src/cli/commands/init.test.ts](../src/cli/commands/init.test.ts)
+- **Exports:** *none*
+- **Functions:** `runInitInTempProject`
+- **Imports from:** `node:fs`, `node:os`, `node:path`, `vitest`, `commander`, `./init.js`
+
 ### [src/cli/commands/init.ts](../src/cli/commands/init.ts)
 - **Exports:** `registerInitCommand`
 - **Functions:** `ask`, `normalizeProvider`, `writeProviderEnv`, `registerInitCommand`

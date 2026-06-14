@@ -5,7 +5,7 @@ This document contains an optimized summary of the project context for LLMs.
 ## Project Overview
 - **Project:** contextforge
 - **Languages:** JSON, YAML, Markdown, JavaScript, TypeScript
-- **Branch:** main
+- **Branch:** fix/cli-hardening-generated-links
 
 ### Key Dependencies
 - `commander`: `^12.1.0`
@@ -21,6 +21,7 @@ This document contains an optimized summary of the project context for LLMs.
   - **Exports:** `registerBriefCommand`
 - `src/cli/commands/decisions.ts`:
   - **Exports:** `registerDecisionsCommand`
+- `src/cli/commands/init.test.ts`:
 - `src/cli/commands/init.ts`:
   - **Exports:** `registerInitCommand`
 - `src/cli/commands/scan.ts`:
