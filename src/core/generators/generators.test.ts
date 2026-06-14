@@ -207,6 +207,35 @@ describe('generateArchitecture', () => {
     expect(result).toContain('`run`');
     expect(result).toContain('`os`');
   });
+
+  it('uses portable relative markdown links for module files', () => {
+    const result = generateArchitecture({
+      ...baseSummary,
+      tsModules: [
+        {
+          path: 'src/index.ts',
+          exports: ['main'],
+          classes: [],
+          functions: [],
+          imports: [],
+        },
+      ],
+      pythonModules: [
+        {
+          path: 'scripts/process.py',
+          exports: [],
+          classes: [],
+          functions: ['run'],
+          imports: [],
+        },
+      ],
+    });
+
+    expect(result).toContain('[src/index.ts](../src/index.ts)');
+    expect(result).toContain('[scripts/process.py](../scripts/process.py)');
+    expect(result).not.toContain('file:///');
+    expect(result).not.toContain(baseSummary.projectRoot);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -258,6 +287,17 @@ describe('generateActiveContext', () => {
     expect(result).toContain('src/utils.ts');
     expect(result).toContain('**FIXME**');
     expect(result).toContain('handle edge case');
+  });
+
+  it('uses portable relative markdown links for TODO files', () => {
+    const result = generateActiveContext({
+      ...baseSummary,
+      todos: [{ file: 'src/index.ts', line: 10, type: 'TODO', text: 'refactor this' }],
+    });
+
+    expect(result).toContain('[src/index.ts](../src/index.ts)');
+    expect(result).not.toContain('file:///');
+    expect(result).not.toContain(baseSummary.projectRoot);
   });
 
   it('renders fallback message when no todos', () => {

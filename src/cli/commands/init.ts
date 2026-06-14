@@ -217,11 +217,61 @@ When working on a project that has a \`.contextforge/\` directory initialized:
 3. **Context Injection**: Use this extracted context directly to construct high-quality, token-efficient prompts for the target implementing models (Claude, Qwen, DeepSeek, etc.). Do not pass the entire codebase if the task can be solved using the relevant modular context provided by ContextForge.
 `;
 
+interface InitOptions {
+  provider?: string;
+  model?: string;
+  ollamaHost?: string;
+  deepseekApiKey?: string;
+  yes?: boolean;
+}
+
+const VALID_PROVIDERS = new Set(['deepseek', 'ollama', 'null']);
+
+function normalizeProvider(provider?: string): string | undefined {
+  if (!provider) return undefined;
+  const normalized = provider.toLowerCase();
+  if (!VALID_PROVIDERS.has(normalized)) {
+    throw new Error(`Invalid provider "${provider}". Use one of: deepseek, ollama, null.`);
+  }
+  return normalized;
+}
+
+function writeProviderEnv(envPath: string, provider: string, options: InitOptions): void {
+  switch (provider) {
+    case 'deepseek': {
+      const apiKey = options.deepseekApiKey ?? process.env['DEEPSEEK_API_KEY'] ?? '';
+      const model = options.model ?? 'deepseek-chat';
+      fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=deepseek\nDEEPSEEK_API_KEY=${apiKey}\nDEEPSEEK_MODEL=${model}\n`, 'utf8');
+      console.log('LLM Provider configured: DeepSeek.');
+      if (!apiKey) {
+        console.warn('Warning: DeepSeek provider selected but no API key was provided. Set DEEPSEEK_API_KEY before using it.');
+      }
+      break;
+    }
+    case 'ollama': {
+      const host = options.ollamaHost ?? 'http://localhost:11434';
+      const model = options.model ?? 'llama3';
+      fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=ollama\nOLLAMA_HOST=${host}\nOLLAMA_MODEL=${model}\n`, 'utf8');
+      console.log('LLM Provider configured: Ollama.');
+      break;
+    }
+    case 'null':
+    default:
+      fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
+      console.log('LLM Provider configured: Offline.');
+  }
+}
+
 export function registerInitCommand(program: Command) {
   program
     .command('init')
     .description('Initialize ContextForge in the current repository')
-    .action(async () => {
+    .option('-p, --provider <name>', 'LLM provider (deepseek, ollama, null)')
+    .option('-m, --model <name>', 'Default model for the selected provider')
+    .option('--ollama-host <url>', 'Ollama server URL', 'http://localhost:11434')
+    .option('--deepseek-api-key <key>', 'DeepSeek API key for non-interactive setup')
+    .option('-y, --yes', 'Use Offline provider without prompting when no provider is specified')
+    .action(async (options: InitOptions) => {
       const cwd = process.cwd();
       const contextForgeDir = path.join(cwd, '.contextforge');
       const localDir = path.join(contextForgeDir, 'local');
@@ -245,31 +295,37 @@ export function registerInitCommand(program: Command) {
 
       const envPath = path.join(cwd, '.env');
       if (!fs.existsSync(envPath)) {
-        const providerChoice = await ask(
-          `\nWhich LLM provider do you want to use for this project?\n  1) DeepSeek (Cloud API)\n  2) Ollama (Local)\n  3) Offline (none)\nEnter choice [1/2/3]: `
-        );
+        try {
+          const providerFromOptions = normalizeProvider(options.provider);
+          if (providerFromOptions) {
+            writeProviderEnv(envPath, providerFromOptions, options);
+          } else if (options.yes) {
+            writeProviderEnv(envPath, 'null', options);
+          } else {
+            const providerChoice = await ask(
+              `\nWhich LLM provider do you want to use for this project?\n  1) DeepSeek (Cloud API)\n  2) Ollama (Local)\n  3) Offline (none)\nEnter choice [1/2/3]: `
+            );
 
-        switch (providerChoice.trim()) {
-          case '1': {
-            const apiKey = await ask('Enter your DeepSeek API key: ');
-            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=deepseek\nDEEPSEEK_API_KEY=${apiKey}\nDEEPSEEK_MODEL=deepseek-chat\n`, 'utf8');
-            console.log('LLM Provider configured: DeepSeek.');
-            break;
+            switch (providerChoice.trim()) {
+              case '1': {
+                const apiKey = await ask('Enter your DeepSeek API key: ');
+                writeProviderEnv(envPath, 'deepseek', { ...options, deepseekApiKey: apiKey });
+                break;
+              }
+              case '2':
+                writeProviderEnv(envPath, 'ollama', options);
+                break;
+              case '3':
+                writeProviderEnv(envPath, 'null', options);
+                break;
+              default:
+                console.log('Invalid choice. Defaulting to Offline.');
+                writeProviderEnv(envPath, 'null', options);
+            }
           }
-          case '2': {
-            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=ollama\nOLLAMA_HOST=http://localhost:11434\nOLLAMA_MODEL=llama3\n`, 'utf8');
-            console.log('LLM Provider configured: Ollama.');
-            break;
-          }
-          case '3': {
-            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
-            console.log('LLM Provider configured: Offline.');
-            break;
-          }
-          default:
-            console.log('Invalid choice. Defaulting to Offline.');
-            fs.writeFileSync(envPath, `CONTEXTFORGE_PROVIDER=null\n`, 'utf8');
-            console.log('LLM Provider configured: Offline.');
+        } catch (error) {
+          console.error(error instanceof Error ? error.message : error);
+          process.exit(1);
         }
       } else {
         console.log('Skipping .env creation — file already exists.');

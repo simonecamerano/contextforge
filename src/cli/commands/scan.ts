@@ -30,6 +30,8 @@ export async function runScan(cwd: string): Promise<void> {
 
   console.log('Starting repository scan...');
   try {
+    fs.mkdirSync(localDir, { recursive: true });
+
     const ignoreEngine = new IgnoreEngine(cwd);
     const files = await walkDirectory(cwd, ignoreEngine);
     

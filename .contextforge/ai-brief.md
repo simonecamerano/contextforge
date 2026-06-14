@@ -4,13 +4,11 @@ This document contains an optimized summary of the project context for LLMs.
 
 ## Project Overview
 - **Project:** contextforge
-- **Languages:** Markdown, JavaScript, JSON, TypeScript
+- **Languages:** JSON, YAML, Markdown, JavaScript, TypeScript
 - **Branch:** main
 
 ### Key Dependencies
 - `commander`: `^12.1.0`
-- `cosmiconfig`: `^9.0.0`
-- `eta`: `^3.4.0`
 - `ignore`: `^5.3.1`
 - `zod`: `^3.23.8`
 
@@ -49,18 +47,48 @@ This document contains an optimized summary of the project context for LLMs.
 - `src/core/scanner/ignore-engine.ts`:
   - **Exports:** `IgnoreEngine`
   - **Classes:** `IgnoreEngine`
+- `src/core/scanner/parsers/csharp.test.ts`:
+- `src/core/scanner/parsers/csharp.ts`:
+  - **Exports:** `parseCSharp`
+- `src/core/scanner/parsers/go.test.ts`:
+- `src/core/scanner/parsers/go.ts`:
+  - **Exports:** `parseGo`
+- `src/core/scanner/parsers/java.test.ts`:
+- `src/core/scanner/parsers/java.ts`:
+  - **Exports:** `parseJava`
+- `src/core/scanner/parsers/kotlin.test.ts`:
+- `src/core/scanner/parsers/kotlin.ts`:
+  - **Exports:** `parseKotlin`
 - `src/core/scanner/parsers/manifest.test.ts`:
 - `src/core/scanner/parsers/manifest.ts`:
   - **Exports:** `parseManifest`
+- `src/core/scanner/parsers/php.test.ts`:
+- `src/core/scanner/parsers/php.ts`:
+  - **Exports:** `parsePHP`
 - `src/core/scanner/parsers/python.test.ts`:
 - `src/core/scanner/parsers/python.ts`:
   - **Exports:** `parsePython`
+- `src/core/scanner/parsers/roadmap.test.ts`:
+- `src/core/scanner/parsers/roadmap.ts`:
+  - **Exports:** `parseRoadmap`
+- `src/core/scanner/parsers/ruby.test.ts`:
+- `src/core/scanner/parsers/ruby.ts`:
+  - **Exports:** `parseRuby`
+- `src/core/scanner/parsers/rust.test.ts`:
+- `src/core/scanner/parsers/rust.ts`:
+  - **Exports:** `parseRust`
+- `src/core/scanner/parsers/svelte.test.ts`:
+- `src/core/scanner/parsers/svelte.ts`:
+  - **Exports:** `parseSvelte`
 - `src/core/scanner/parsers/typescript.test.ts`:
 - `src/core/scanner/parsers/typescript.ts`:
   - **Exports:** `parseTypeScript`
+- `src/core/scanner/parsers/vue.test.ts`:
+- `src/core/scanner/parsers/vue.ts`:
+  - **Exports:** `parseVue`
 - `src/core/scanner/summarizer.test.ts`:
 - `src/core/scanner/summarizer.ts`:
-  - **Exports:** `summarizeProject`
+  - **Exports:** `RoadmapItem`, `summarizeProject`
 - `src/core/stats/compression-stats.ts`:
   - **Exports:** `computeCompressionStats`
 - `src/core/updater/change-detector.test.ts`:
@@ -84,19 +112,4 @@ This document contains an optimized summary of the project context for LLMs.
 - `src/providers/providers.test.ts`:
 - `tsup.config.ts`:
 - `vitest.config.ts`:
-
-### Active Todos
-- [src/core/scanner/summarizer.test.ts:140] **TODO**: comment', async () => {
-- [src/core/scanner/summarizer.test.ts:141] **TODO**: refactor this\n');
-- [src/core/scanner/summarizer.test.ts:151] **FIXME**: comment', async () => {
-- [src/core/scanner/summarizer.test.ts:152] **FIXME**: broken logic\nconst y = 2;\n');
-- [src/core/scanner/summarizer.test.ts:162] **TODO**: comment in Python files', async () => {
-- [src/core/scanner/summarizer.test.ts:163] **TODO**: improve performance\n');
-- [src/core/scanner/summarizer.test.ts:173] **TODO**: comment (triple-slash style)', async () => {
-- [src/core/scanner/summarizer.test.ts:174] **TODO**: document this\n');
-- [src/core/scanner/summarizer.test.ts:185] **TODO**: lowercase\n// fixme: also lowercase\n');
-- [src/core/scanner/summarizer.test.ts:196] **TODO**: first file\n')
-- [src/core/scanner/summarizer.test.ts:197] **FIXME**: second file\n');
-- [src/core/scanner/summarizer.test.ts:217] **TODO**: on line four\n');
-- [src/core/scanner/summarizer.test.ts:424] **TODO**: second file\n');
 

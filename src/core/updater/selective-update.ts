@@ -19,7 +19,22 @@ const MANIFEST_FILES = new Set(['package.json', 'requirements.txt', 'pyproject.t
  * (new classes, functions, imports) requiring `architecture.md` to be
  * regenerated.
  */
-const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.py']);
+const SOURCE_EXTENSIONS = new Set([
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.py',
+  '.vue',
+  '.svelte',
+  '.php',
+  '.rb',
+  '.go',
+  '.java',
+  '.kt',
+  '.cs',
+  '.rs',
+]);
 
 /**
  * Returns `true` when the given file path is a recognised project manifest.

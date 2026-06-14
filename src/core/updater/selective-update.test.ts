@@ -203,6 +203,22 @@ describe('selectiveUpdate', () => {
       expect(paths).toContain(`${CONTEXT_DIR}/architecture.md`);
     });
 
+    it('writes architecture.md for every structurally parsed source language', async () => {
+      await selectiveUpdate(
+        {
+          modified: ['src/App.vue', 'src/Widget.svelte', 'src/server.go'],
+          added: ['src/User.php', 'src/service.rb', 'src/Main.java'],
+          removed: ['src/App.kt', 'src/Program.cs', 'src/lib.rs'],
+          newHashes: {},
+        },
+        baseSummary,
+        CONTEXT_DIR
+      );
+
+      const paths = mockWriteFile.mock.calls.map((c) => c[0]);
+      expect(paths).toContain(`${CONTEXT_DIR}/architecture.md`);
+    });
+
     it('does NOT write architecture.md when only manifest files change', async () => {
       await selectiveUpdate(
         { modified: ['package.json'], added: [], removed: [], newHashes: {} },

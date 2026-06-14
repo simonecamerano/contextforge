@@ -172,6 +172,12 @@ npm link    # makes `contextforge` available globally
 npx contextforge init
 ```
 
+For scripts and CI, avoid prompts with an explicit provider:
+
+```bash
+npx contextforge init --provider null
+```
+
 ---
 
 ## CLI Commands
@@ -182,6 +188,15 @@ Initializes ContextForge in the current directory. Scaffolds `.contextforge/` wi
 
 ```bash
 contextforge init
+```
+
+Non-interactive setup is also supported:
+
+```bash
+contextforge init --provider null
+contextforge init --provider ollama --model llama3 --ollama-host http://localhost:11434
+contextforge init --provider deepseek --model deepseek-chat --deepseek-api-key "$DEEPSEEK_API_KEY"
+contextforge init --yes   # defaults to offline mode
 ```
 
 Files created:
@@ -214,9 +229,9 @@ contextforge update
 
 | Change type | Documents regenerated |
 |---|---|
-| Source file modified/added/removed | `architecture.md`, `active-context.md` |
+| Source file modified/added/removed (`.ts`, `.tsx`, `.js`, `.jsx`, `.py`, `.vue`, `.svelte`, `.php`, `.rb`, `.go`, `.java`, `.kt`, `.cs`, `.rs`) | `architecture.md`, `active-context.md`, `ai-brief.md` |
 | Manifest changed (`package.json`, etc.) | `project-overview.md` + above |
-| No changes | Nothing |
+| No relevant source/manifest changes | `active-context.md`, `ai-brief.md` |
 
 ### `decisions`
 
@@ -318,7 +333,7 @@ Three-layer ignore system:
 
 | Priority | Source | Notes |
 |---|---|---|
-| 1 (lowest) | Built-in defaults | `node_modules/`, `.git/`, `dist/`, `build/`, `coverage/`, `.contextforge/` |
+| 1 (lowest) | Built-in defaults | `node_modules/`, `.git/`, `dist/`, `build/`, `coverage/`, `.contextforge/local/` |
 | 2 | `.gitignore` | All rules from the project's existing `.gitignore` |
 | 3 (highest) | `.contextforgeignore` | ContextForge-specific exclusions |
 

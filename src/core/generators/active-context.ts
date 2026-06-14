@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { ProjectSummary } from '../scanner/summarizer.js';
 import type { RoadmapItem } from '../scanner/summarizer.js';
 
@@ -22,9 +21,8 @@ export function generateActiveContext(summary: ProjectSummary): string {
   if (summary.todos.length > 0) {
     markdown += `| File | Line | Type | Message |\n|---|---|---|---|\n`;
     for (const todo of summary.todos) {
-      const absPath = path.resolve(summary.projectRoot, todo.file).replace(/\\/g, '/');
-      const fileUrl = `file://${absPath.startsWith('/') ? '' : '/'}${absPath}`;
-      markdown += `| [${todo.file}](${fileUrl}) | ${todo.line} | **${todo.type}** | ${todo.text} |\n`;
+      const normalizedPath = todo.file.replace(/\\/g, '/');
+      markdown += `| [${todo.file}](../${normalizedPath}) | ${todo.line} | **${todo.type}** | ${todo.text} |\n`;
     }
   } else {
     markdown += `No TODO or FIXME comments found in the code.\n`;
