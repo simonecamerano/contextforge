@@ -184,7 +184,7 @@ npx contextforge init --provider null
 
 ### `init`
 
-Initializes ContextForge in the current directory. Scaffolds `.contextforge/` with seven starter Markdown files, creates agent rules at `.agent/rules/scelta_modello.md`, and immediately runs a full scan.
+Initializes ContextForge in the current directory. Scaffolds `.contextforge/` with seven starter Markdown files, creates a root `AGENTS.md` bootstrap, creates detailed agent rules at `.agent/rules/scelta_modello.md`, and immediately runs a full scan.
 
 ```bash
 contextforge init
@@ -201,6 +201,10 @@ contextforge init --yes   # defaults to offline mode
 
 Files created:
 ```
+AGENTS.md                         # Root agent bootstrap for compatible coding agents
+.agent/
+└── rules/
+    └── scelta_modello.md         # Detailed model-routing and ContextForge workflow rules
 .contextforge/
 ├── project-overview.md       # Project description and tech stack
 ├── architecture.md           # Module structure and architectural decisions
@@ -343,12 +347,33 @@ Additionally: files > 500 KB and binary files are always excluded.
 
 ## Agentic Workflow Integration
 
-When you run `contextforge init`, it creates an agent rules file at `.agent/rules/scelta_modello.md`. In an agent-supported IDE (Claude Code, Cursor, Windsurf):
+When you run `contextforge init`, it creates two agent-facing files:
 
-1. The agent reads the rule file at the start of any task
-2. It detects `.contextforge/` and runs `contextforge update` automatically
-3. It injects `active-context.md` and `architecture.md` directly into the implementing model's prompt
-4. No raw codebase dump — structured, compressed context only
+- `AGENTS.md` — short root bootstrap for compatible coding agents and IDEs
+- `.agent/rules/scelta_modello.md` — detailed model-routing policy and ContextForge workflow rules
+
+Recommended startup chain:
+
+```text
+AGENTS.md
+   ↓
+.agent/rules/scelta_modello.md
+   ↓
+.contextforge/*.md
+   ↓
+actual source files
+```
+
+In an agent-supported IDE (Claude Code, Cursor, Windsurf, Antigravity-style workflows):
+
+1. The agent discovers `AGENTS.md` at the project root
+2. `AGENTS.md` points it to `.agent/rules/scelta_modello.md`
+3. The rules tell the orchestrator to use `.contextforge/` as a routing map
+4. The orchestrator selects the relevant files and passes focused context to implementing models
+5. Implementing models must read the actual source files before changing code
+6. Every implementation task ends with real verification: targeted tests, build/typecheck, or smoke test
+
+ContextForge is a **routing map**, not a source-code replacement. It helps the orchestrator choose what to read next, instead of dumping the whole repository into the prompt.
 
 Result: **60-80% reduction in token overhead** on large codebases.
 

@@ -260,6 +260,34 @@ Every implementation task must end with real verification, choosing the smallest
 Do not declare the task complete without reporting the actual command/check that was run and its result.
 `;
 
+const DEFAULT_AGENTS_TEMPLATE = `# Agent Instructions
+
+This repository uses ContextForge for agentic development.
+
+## Mandatory startup protocol
+
+Before planning, editing, or delegating work in this repository:
+
+1. Read \`.agent/rules/scelta_modello.md\`.
+2. Read \`.contextforge/active-context.md\`.
+3. Read \`.contextforge/architecture.md\`.
+4. Use \`.contextforge/project-overview.md\` when dependencies, scripts, or configuration matter.
+5. Use \`.contextforge/ai-brief.md\` when constructing compact prompts for external models.
+
+## ContextForge rule
+
+ContextForge is a routing map, not the implementation source of truth.
+
+Use it to identify relevant files, then read the actual source files before making implementation claims or changes.
+
+## Verification rule
+
+Do not declare implementation tasks complete without real verification:
+- targeted tests when available,
+- build/typecheck when relevant,
+- smoke test for CLI/server/UI flows.
+`;
+
 interface InitOptions {
   provider?: string;
   model?: string;
@@ -410,7 +438,13 @@ export function registerInitCommand(program: Command) {
           console.log('Created .gitignore with ContextForge local directory.');
         }
 
-        // 2. Auto-Scaffold .agent/rules/scelta_modello.md
+        // 2. Auto-scaffold root AGENTS.md bootstrap and .agent/rules/scelta_modello.md
+        const agentsPath = path.join(cwd, 'AGENTS.md');
+        if (!fs.existsSync(agentsPath)) {
+          fs.writeFileSync(agentsPath, DEFAULT_AGENTS_TEMPLATE, 'utf8');
+          console.log('Created agent bootstrap: AGENTS.md');
+        }
+
         const agentDir = path.join(cwd, '.agent');
         const rulesDir = path.join(agentDir, 'rules');
         const sceltaModelloPath = path.join(rulesDir, 'scelta_modello.md');

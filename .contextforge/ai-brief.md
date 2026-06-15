@@ -5,7 +5,7 @@ This document contains an optimized summary of the project context for LLMs.
 ## Project Overview
 - **Project:** contextforge
 - **Languages:** JSON, YAML, Markdown, JavaScript, TypeScript
-- **Branch:** fix/cli-hardening-generated-links
+- **Branch:** main
 
 ### Key Dependencies
 - `commander`: `^12.1.0`

@@ -59,12 +59,30 @@ describe('init command', () => {
     expect(content).toContain('Every implementation task must end with real verification');
   });
 
-  it('does not overwrite an existing agent model-selection file', async () => {
+  it('generates a root AGENTS.md bootstrap that points agents to ContextForge and model-selection rules', async () => {
+    const projectDir = await runInitInTempProject();
+    const agentsPath = path.join(projectDir, 'AGENTS.md');
+
+    expect(fs.existsSync(agentsPath)).toBe(true);
+    const content = fs.readFileSync(agentsPath, 'utf8');
+
+    expect(content).toContain('This repository uses ContextForge for agentic development.');
+    expect(content).toContain('Read `.agent/rules/scelta_modello.md`.');
+    expect(content).toContain('Read `.contextforge/active-context.md`.');
+    expect(content).toContain('Read `.contextforge/architecture.md`.');
+    expect(content).toContain('ContextForge is a routing map, not the implementation source of truth.');
+    expect(content).toContain('read the actual source files before making implementation claims or changes.');
+    expect(content).toContain('Do not declare implementation tasks complete without real verification');
+  });
+
+  it('does not overwrite existing agent instruction files', async () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'contextforge-init-'));
     const rulesDir = path.join(tempDir, '.agent', 'rules');
     const rulesPath = path.join(rulesDir, 'scelta_modello.md');
+    const agentsPath = path.join(tempDir, 'AGENTS.md');
     fs.mkdirSync(rulesDir, { recursive: true });
     fs.writeFileSync(rulesPath, 'custom rules', 'utf8');
+    fs.writeFileSync(agentsPath, 'custom agents bootstrap', 'utf8');
 
     process.chdir(tempDir);
     const program = new Command();
@@ -74,5 +92,6 @@ describe('init command', () => {
     await program.parseAsync(['init', '-y'], { from: 'user' });
 
     expect(fs.readFileSync(rulesPath, 'utf8')).toBe('custom rules');
+    expect(fs.readFileSync(agentsPath, 'utf8')).toBe('custom agents bootstrap');
   });
 });
