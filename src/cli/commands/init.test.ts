@@ -57,6 +57,8 @@ describe('init command', () => {
     expect(content).toContain('For pure discussion or early ideation, read existing `.contextforge` files without updating unless freshness is required.');
     expect(content).toContain('Start with the smallest reasonable file set.');
     expect(content).toContain('Every implementation task must end with real verification');
+    expect(content).toContain('Enterprise Checklist Gate');
+    expect(content).toContain('mark them N/A, not pending');
   });
 
   it('generates a root AGENTS.md bootstrap that points agents to ContextForge and model-selection rules', async () => {
