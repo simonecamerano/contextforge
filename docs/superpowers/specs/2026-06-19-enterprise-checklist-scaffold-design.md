@@ -88,6 +88,8 @@ If the task involves:
 
 When you cannot verify an item directly, do not mark it as done: flag it as unverified and propose the next concrete step to verify it.
 
+Not every item applies to every project. Before evaluating a category, check `.contextforge/architecture.md` and `.contextforge/project-overview.md` to determine whether it applies to this project's actual architecture (e.g., skip backend/API/database items for a frontend-only or static project; skip SEO/Metadata items for a project with no public-facing pages; skip Legal & Compliance items for an internal tool with no end users). Mark items that do not apply as **N/A** with a one-line reason — do not list them as pending or unverified, and do not treat them as blocking risks.
+
 ## 1. Performance
 
 - [CRITICAL] Core Web Vitals: LCP < 2.5s, INP < 200ms, CLS < 0.1 — PageSpeed Insights + Chrome UX Report for real field data
@@ -257,7 +259,7 @@ When you cannot verify an item directly, do not mark it as done: flag it as unve
 Add a new, permanent item to Section 6 (General Development Rules) — safe whether or not the checklist file was scaffolded, since it's conditioned on the file's existence:
 
 ```markdown
-7. **Enterprise Checklist Gate**: If `.agent/rules/enterprise-checklist.md` exists in this repo, treat it as the production-readiness gate before declaring any deploy-bound task complete. Verify all [CRITICAL] items relevant to the current category; report unverified ones as pending risks rather than marking them done.
+7. **Enterprise Checklist Gate**: If `.agent/rules/enterprise-checklist.md` exists in this repo, treat it as the production-readiness gate before declaring any deploy-bound task complete. Skip categories/items that do not apply to this project's actual architecture (mark them N/A, not pending). For everything else, verify all [CRITICAL] items relevant to the current category; report unverified ones as pending risks rather than marking them done.
 ```
 
 This line is added to `DEFAULT_SCELTA_MODELLO_TEMPLATE` in `init.ts` unconditionally (it does not depend on whether `--enterprise-checklist` was passed for *this* `init` run).
