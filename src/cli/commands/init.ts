@@ -40,8 +40,7 @@ For every programming task, Gemini executes the protocol described below before 
 | **Gemini Flash** | ⚡ Sprinter | Simple tasks, quick answers, short docs, minor refactoring | Qwen local | Rate limit (higher) |
 | **Codex / GPT-4o** | 🎨 Designer | CSS, Tailwind, layouts, UI, transitions, visual frontend | Gemini Flash | Rate limit |
 | **DeepSeek API** | 💡 Coding specialist | Advanced algorithms, optimization — use when genuinely the best fit | Qwen local | API cost (low) |
-| **Claude CLI / Codex CLI** | 🚜 Batch file editor | End-of-project batch cleanup, broad test expansion, docs, multi-file normalization | Simone decides manually | Request limit / sandbox risk |
-| **Copilot CLI** | 🧭 Shell/GitHub helper | Shell command suggestions, GitHub-integrated workflow help | Claude CLI | Request limit |
+| **Claude CLI / Codex CLI** | 🚜 Batch file editor | End-of-project batch cleanup, broad test expansion, docs, multi-file normalization, shell/Git workflow help | Simone decides manually | Request limit / sandbox risk |
 
 ---
 
@@ -58,7 +57,7 @@ These categories should usually be postponed until Simone explicitly says the pr
 | Repo documentation | README, CHANGELOG, wiki, docs/ folder | Documentation required for the current deliverable or user-facing behavior change |
 | Global normalization | Multi-file style cleanup, global string replacement, light refactoring | A focused refactor required to safely complete the current task |
 
-> **Tool note:** Copilot CLI (\`gh copilot\`) is best for suggesting shell commands and GitHub/Git workflows. For batch file editing, broad docs, test generation, or multi-file refactoring, prefer Claude CLI or Codex CLI because they can read and edit files directly.
+> **Tool note:** Use Claude CLI or Codex CLI for batch file editing, broad docs, test generation, multi-file refactoring, and shell/Git workflow suggestions — they can read and edit files directly.
 
 ### Automatic instruction to include in model prompts
 
@@ -118,10 +117,9 @@ TASK: [PROMPT]"
 
 - **Qwen local**: run directly from Antigravity IDE (local Ollama) — paste \`ai-brief.md\` content manually in the context field
 - **Gemini**: run directly from Antigravity IDE
-- **Copilot CLI** (\`gh copilot\`): use mainly for shell command and GitHub workflow suggestions
 
 **Strict Model Delegation Rule:**
-If a microtask is assigned to a model other than Gemini (i.e., Qwen, Claude, DeepSeek, Codex, Copilot), Gemini **MUST NOT** write or modify files directly using its own generation capabilities. Gemini **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Gemini is strictly forbidden.
+If a microtask is assigned to a model other than Gemini (i.e., Qwen, Claude, DeepSeek, Codex), Gemini **MUST NOT** write or modify files directly using its own generation capabilities. Gemini **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Gemini is strictly forbidden.
 
 ---
 
@@ -152,8 +150,7 @@ For each microtask (or the single task), apply the role table in Section 1.
 - Assign **Qwen (local)** ONLY for boilerplate, simple CRUD, standard components, or light local refactoring.
 - Assign **Claude Pro** or **DeepSeek** for complex logic, algorithms, state management, or multi-file debugging.
 - Assign **Codex / GPT-4o** for CSS, Tailwind, layouts, transitions, or visual frontend styling.
-- Assign **Claude CLI / Codex CLI** for end-of-project batch file editing.
-- Assign **Copilot CLI** mainly for shell/GitHub workflow suggestions.
+- Assign **Claude CLI / Codex CLI** for end-of-project batch file editing and shell/Git workflow suggestions.
 
 **Ambiguity rule:** if the task falls between two categories, choose the model with the lowest rate limit cost (priority: Qwen, then Gemini Flash, then others), unless correctness or security requires the stronger model.
 
