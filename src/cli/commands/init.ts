@@ -60,6 +60,8 @@ These categories should usually be postponed until Simone explicitly says the pr
 
 > **Tool note:** Use Claude CLI or Codex CLI for batch file editing, broad docs, test generation, multi-file refactoring, and shell/Git workflow suggestions — they can read and edit files directly.
 
+> **Transparency note:** When repo documentation becomes relevant during active development (e.g. wrapping up a setup phase, or Simone asks about docs), state explicitly that it is deferred to final cleanup — do not let it go unmentioned. Example: "README rinviato a fine progetto, verrà generato durante il final cleanup."
+
 ### Automatic instruction to include in model prompts
 
 Gemini includes this instruction in **every** prompt passed to other models:
@@ -77,7 +79,7 @@ Gemini includes this instruction in **every** prompt passed to other models:
 Final cleanup activates **only on Simone's explicit trigger** ("project done, let's run final cleanup"), in this order:
 1. Broad test coverage expansion
 2. Critical docstrings and comments
-3. Repo documentation generation
+3. Repo documentation generation — must produce a real, complete README (setup, usage, architecture overview) before declaring the project finished. Do not skip it or leave a stub.
 4. Light global refactoring or normalization
 
 ---
@@ -616,18 +618,30 @@ export function registerInitCommand(program: Command) {
         }
 
         const gitignorePath = path.join(cwd, '.gitignore');
-        const ignoreLine = '.contextforge/local/';
+        const defaultIgnoreLines = [
+          '.contextforge/local/',
+          '.env',
+          '.env.*',
+          'node_modules/',
+          '__pycache__/',
+          '*.pyc',
+          'venv/',
+          '.venv/',
+          'dist/',
+          'build/',
+          '*.log',
+          '.DS_Store',
+          '.vscode/',
+          '.idea/',
+        ];
 
-        if (fs.existsSync(gitignorePath)) {
-          const content = fs.readFileSync(gitignorePath, 'utf8');
-          if (!content.includes(ignoreLine)) {
-            const separator = content.endsWith('\n') ? '' : '\n';
-            fs.writeFileSync(gitignorePath, `${content}${separator}${ignoreLine}\n`, 'utf8');
-            console.log('Updated .gitignore with ContextForge local directory.');
-          }
-        } else {
-          fs.writeFileSync(gitignorePath, `${ignoreLine}\n`, 'utf8');
-          console.log('Created .gitignore with ContextForge local directory.');
+        const existingGitignore = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf8') : '';
+        const missingIgnoreLines = defaultIgnoreLines.filter(line => !existingGitignore.includes(line));
+
+        if (missingIgnoreLines.length > 0) {
+          const separator = existingGitignore.length > 0 && !existingGitignore.endsWith('\n') ? '\n' : '';
+          fs.writeFileSync(gitignorePath, `${existingGitignore}${separator}${missingIgnoreLines.join('\n')}\n`, 'utf8');
+          console.log(existingGitignore ? 'Updated .gitignore with default exclusions.' : 'Created .gitignore with default exclusions.');
         }
 
         // 2. Auto-scaffold root AGENTS.md bootstrap and .agent/rules/scelta_modello.md

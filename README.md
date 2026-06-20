@@ -224,6 +224,25 @@ roadmap.md                        # Phase/task template, tracked automatically i
 └── ai-brief.md               # LLM-optimised summary, open roadmap tasks
 ```
 
+`init` also creates or updates `.gitignore` with a default exclusion set — merged idempotently, so existing custom entries are preserved and nothing gets duplicated on repeated runs:
+
+```
+.contextforge/local/
+.env
+.env.*
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+dist/
+build/
+*.log
+.DS_Store
+.vscode/
+.idea/
+```
+
 ### `scan`
 
 Full repository scan. Walks every file, builds a `ProjectSummary`, and overwrites the three auto-generated docs. Writes SHA-256 hashes to `meta.json` as baseline for `update`.

@@ -137,4 +137,36 @@ describe('init command', () => {
 
     expect(fs.readFileSync(checklistPath, 'utf8')).toBe('custom checklist');
   });
+
+  it('creates .gitignore with default exclusions for env files, dependencies, and build output', async () => {
+    const projectDir = await runInitInTempProject();
+    const gitignorePath = path.join(projectDir, '.gitignore');
+
+    expect(fs.existsSync(gitignorePath)).toBe(true);
+    const content = fs.readFileSync(gitignorePath, 'utf8');
+
+    expect(content).toContain('.contextforge/local/');
+    expect(content).toContain('.env');
+    expect(content).toContain('node_modules/');
+    expect(content).toContain('__pycache__/');
+    expect(content).toContain('dist/');
+  });
+
+  it('merges default exclusions into an existing .gitignore without removing or duplicating entries', async () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'contextforge-init-'));
+    const gitignorePath = path.join(tempDir, '.gitignore');
+    fs.writeFileSync(gitignorePath, 'custom-build-output/\n.env\n', 'utf8');
+
+    process.chdir(tempDir);
+    const program = new Command();
+    program.exitOverride();
+    program.configureOutput({ writeOut: () => undefined, writeErr: () => undefined });
+    registerInitCommand(program);
+    await program.parseAsync(['init', '-y'], { from: 'user' });
+
+    const content = fs.readFileSync(gitignorePath, 'utf8');
+    expect(content).toContain('custom-build-output/');
+    expect(content).toContain('node_modules/');
+    expect(content.match(/^\.env$/gm)?.length).toBe(1);
+  });
 });
