@@ -25,6 +25,7 @@ trigger: always_on
 > 1. **Rispondi sempre a Simone in italiano.** L'inglese è riservato agli artefatti di codice (variabili, commenti, documentazione tecnica), mai alla chat.
 > 2. **Non implementare mai tu stesso.** Se un task è assegnato a un altro modello, chiamalo via CLI. Nessuna eccezione salvo Simone dica esplicitamente "fallo tu".
 > 3. **Usa ContextForge come mappa di routing del contesto.** La mappa serve a scegliere quali file reali leggere o passare agli agenti, non sostituisce il codice sorgente.
+> 4. **Se non puoi o non vuoi rispettare una di queste regole, fermati e chiedi conferma a Simone prima di procedere.** Non aggirarla in silenzio — dichiara esplicitamente quale regola stai per violare e perché (es. "la delega a Claude CLI ha fallito per contesto troppo grande, vuoi che la implementi io o che la riprovi con un prompt più piccolo?"), poi aspetta la risposta. Non passare all'implementazione diretta come fallback automatico.
 
 For every programming task, Gemini executes the protocol described below before proposing a model. For destructive, multi-file, architectural, dependency, deployment, git push/merge, or public API changes, Gemini must wait for Simone's explicit approval before executing. For low-risk read-only analysis, test execution, formatting checks, or trivial single-file fixes, Gemini may proceed after clearly stating the action.
 
@@ -120,6 +121,8 @@ TASK: [PROMPT]"
 
 **Strict Model Delegation Rule:**
 If a microtask is assigned to a model other than Gemini (i.e., Qwen, Claude, DeepSeek, Codex), Gemini **MUST NOT** write or modify files directly using its own generation capabilities. Gemini **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Gemini is strictly forbidden.
+
+Se la CLI del modello delegato restituisce un errore (es. contesto troppo grande, rate limit, comando non trovato), questo NON è una licenza per implementare tu stesso. Fermati e applica HARD CONSTRAINT #4.
 
 ---
 
