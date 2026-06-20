@@ -59,6 +59,8 @@ describe('init command', () => {
     expect(content).toContain('Every implementation task must end with real verification');
     expect(content).toContain('Enterprise Checklist Gate');
     expect(content).toContain('mark them N/A, not pending');
+    expect(content).toContain('fermati e chiedi conferma a Simone prima di procedere');
+    expect(content).toContain('output the verification table the checklist file requires');
   });
 
   it('generates a root AGENTS.md bootstrap that points agents to ContextForge and model-selection rules', async () => {
@@ -108,6 +110,8 @@ describe('init command', () => {
     expect(content).toContain('# Enterprise Readiness Checklist');
     expect(content).toContain('## 1. Performance');
     expect(content).toContain('## 10. API Design & Quality');
+    expect(content).toContain('Mandatory output format');
+    expect(content).toContain('is not a valid completion declaration');
   });
 
   it('does not create enterprise-checklist.md by default', async () => {

@@ -206,7 +206,7 @@ For tasks decomposed into microtasks, use this extended format:
    - When a plan for a new project is approved, generate a **Roadmap** artifact with checkable tasks (\`[ ]\`) and keep it updated as work progresses.
 5. **Constant Best Practices**: Every project or component must be developed and optimized following best practices for **SEO**, **GEO** (localization), **Accessibility** (A11y, ARIA) and **Performance** (load optimization) when relevant to the project type.
 6. **English Only**: All code, comments, JSDoc, CLI output strings, error messages, template content, and documentation must be written in **English**. This applies to every model and to final cleanup. No Italian in any project artifact.
-7. **Enterprise Checklist Gate**: If \`.agent/rules/enterprise-checklist.md\` exists in this repo, treat it as the production-readiness gate before declaring any deploy-bound task complete. Skip categories/items that do not apply to this project's actual architecture (mark them N/A, not pending). For everything else, verify all [CRITICAL] items relevant to the current category; report unverified ones as pending risks rather than marking them done.
+7. **Enterprise Checklist Gate**: If \`.agent/rules/enterprise-checklist.md\` exists in this repo, treat it as the production-readiness gate before declaring any deploy-bound task complete. Skip categories/items that do not apply to this project's actual architecture (mark them N/A, not pending). For everything else, verify all [CRITICAL] items relevant to the current category and output the verification table the checklist file requires — a verbal "checklist passed" without that table is not a valid completion declaration.
 
 ---
 
@@ -313,6 +313,8 @@ If the task involves:
 When you cannot verify an item directly, do not mark it as done: flag it as unverified and propose the next concrete step to verify it.
 
 Not every item applies to every project. Before evaluating a category, check \`.contextforge/architecture.md\` and \`.contextforge/project-overview.md\` to determine whether it applies to this project's actual architecture (e.g., skip backend/API/database items for a frontend-only or static project; skip SEO/Metadata items for a project with no public-facing pages; skip Legal & Compliance items for an internal tool with no end users). Mark items that do not apply as **N/A** with a one-line reason — do not list them as pending or unverified, and do not treat them as blocking risks.
+
+**Mandatory output format:** When declaring a task complete or production-ready, output a literal verification table — one row per checklist item in scope for the relevant categories — before the completion statement. Columns: item, status (✅ Verified / ❌ Not met / N/A — reason / ⚠️ Unverified — next step), evidence (the command, file, or check that supports the status). A verbal claim of compliance without this table (e.g. "checklist passed", "all good") is not a valid completion declaration. If you cannot produce the table because verification work is incomplete, stop and ask Simone per HARD CONSTRAINT #4 in \`scelta_modello.md\` instead of declaring completion.
 
 ## 1. Performance
 
