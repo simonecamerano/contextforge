@@ -184,7 +184,7 @@ npx contextforge init --provider null
 
 ### `init`
 
-Initializes ContextForge in the current directory. Scaffolds `.contextforge/` with seven starter Markdown files, creates a root `AGENTS.md` bootstrap, creates detailed agent rules at `.agent/rules/scelta_modello.md`, and immediately runs a full scan.
+Initializes ContextForge in the current directory. Scaffolds `.contextforge/` with seven starter Markdown files, a `roadmap.md` template, a root `AGENTS.md` bootstrap, detailed agent rules at `.agent/rules/scelta_modello.md`, and immediately runs a full scan.
 
 ```bash
 contextforge init
@@ -196,23 +196,32 @@ Non-interactive setup is also supported:
 contextforge init --provider null
 contextforge init --provider ollama --model llama3 --ollama-host http://localhost:11434
 contextforge init --provider deepseek --model deepseek-chat --deepseek-api-key "$DEEPSEEK_API_KEY"
-contextforge init --yes   # defaults to offline mode
+contextforge init --yes   # defaults to offline mode, skips the enterprise checklist prompt
+```
+
+By default `init` asks whether to scaffold an opt-in production-readiness checklist (most projects don't need it). Skip the prompt either way:
+
+```bash
+contextforge init --enterprise-checklist   # force-include it, no prompt
+contextforge init --yes                    # force-skip it, no prompt
 ```
 
 Files created:
 ```
 AGENTS.md                         # Root agent bootstrap for compatible coding agents
+roadmap.md                        # Phase/task template, tracked automatically in active-context.md
 .agent/
 └── rules/
-    └── scelta_modello.md         # Detailed model-routing and ContextForge workflow rules
+    ├── scelta_modello.md         # Detailed model-routing and ContextForge workflow rules
+    └── enterprise-checklist.md   # Opt-in production-readiness gate (only with --enterprise-checklist or "y" at the prompt)
 .contextforge/
 ├── project-overview.md       # Project description and tech stack
 ├── architecture.md           # Module structure and architectural decisions
-├── active-context.md         # Current work state, active branch, TODOs
+├── active-context.md         # Current work state, active branch, TODOs, roadmap progress
 ├── coding-rules.md           # Style guide and coding conventions (manual)
 ├── technical-decisions.md    # Historical ADR log
 ├── open-questions.md         # Open bugs and questions (manual)
-└── ai-brief.md               # LLM-optimised summary
+└── ai-brief.md               # LLM-optimised summary, open roadmap tasks
 ```
 
 ### `scan`
@@ -347,10 +356,11 @@ Additionally: files > 500 KB and binary files are always excluded.
 
 ## Agentic Workflow Integration
 
-When you run `contextforge init`, it creates two agent-facing files:
+When you run `contextforge init`, it creates agent-facing files:
 
 - `AGENTS.md` — short root bootstrap for compatible coding agents and IDEs
 - `.agent/rules/scelta_modello.md` — detailed model-routing policy and ContextForge workflow rules
+- `.agent/rules/enterprise-checklist.md` — opt-in production-readiness gate (only if scaffolded at `init` time)
 
 Recommended startup chain:
 
@@ -368,10 +378,13 @@ In an agent-supported IDE (Claude Code, Cursor, Windsurf, Antigravity-style work
 
 1. The agent discovers `AGENTS.md` at the project root
 2. `AGENTS.md` points it to `.agent/rules/scelta_modello.md`
-3. The rules tell the orchestrator to use `.contextforge/` as a routing map
-4. The orchestrator selects the relevant files and passes focused context to implementing models
+3. The rules tell the orchestrator to use `.contextforge/` as a routing map — pass `$(cat .contextforge/ai-brief.md)` as context when delegating to another model's CLI, instead of dumping raw source files into the prompt
+4. The orchestrator decomposes the task and assigns each piece to the right model (a role table covers Qwen/Claude/Gemini/Codex/DeepSeek by task type)
 5. Implementing models must read the actual source files before changing code
 6. Every implementation task ends with real verification: targeted tests, build/typecheck, or smoke test
+7. If `.agent/rules/enterprise-checklist.md` exists, it gates any deploy-bound completion: the orchestrator must output a literal per-item verification table (status + evidence) before declaring something production-ready — a verbal "checklist passed" doesn't count
+
+`scelta_modello.md` also enforces a non-negotiable fallback: **if the orchestrator can't or won't follow one of these rules, it must stop and ask for confirmation instead of silently doing the task itself.** This exists because rule files are advisory text, not a technical sandbox — nothing stops an agent from using its own native file-edit tools instead of delegating, especially once a delegated CLI call fails. Surfacing the deviation immediately, rather than letting it cascade, is the actual enforcement mechanism.
 
 ContextForge is a **routing map**, not a source-code replacement. It helps the orchestrator choose what to read next, instead of dumping the whole repository into the prompt.
 
@@ -384,6 +397,8 @@ Result: **60-80% reduction in token overhead** on large codebases.
 - [ ] **MCP Server** — expose scan, update, and search as a native MCP server for Claude Desktop, Cursor, Windsurf
 - [ ] **Semantic search** — upgrade keyword retriever with local vector embeddings
 - [x] **12-language parser coverage** — TypeScript, Python, Vue, Svelte, PHP, Ruby, Go, Java, Kotlin, C#, Rust, manifests
+- [x] **Opt-in enterprise readiness checklist** — production-readiness gate scaffolded at `init` time, enforced with a mandatory verification table
+- [x] **Stop-and-confirm fallback** — orchestrator must surface (not silently bypass) any rule it can't or won't follow
 
 ---
 
