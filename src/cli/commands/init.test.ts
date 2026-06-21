@@ -84,6 +84,9 @@ describe('init command', () => {
     expect(content).toContain('ContextForge is a routing map, not the implementation source of truth.');
     expect(content).toContain('read the actual source files before making implementation claims or changes.');
     expect(content).toContain('Do not declare implementation tasks complete without real verification');
+    expect(content).toContain('## Hard Constraints');
+    expect(content).toContain('Never implement directly.');
+    expect(content).toContain('If you cannot or will not follow one of these rules, stop and ask Simone for confirmation');
   });
 
   it('does not overwrite existing agent instruction files', async () => {
