@@ -113,8 +113,8 @@ jq -n --arg content "$(cat .contextforge/ai-brief.md)
 
 TASK: [PROMPT]" '{"model": "[LM_STUDIO_MODEL_NAME]", "messages": [{"role": "user", "content": $content}]}' > /tmp/lm-studio-payload.json
 
-curl -s http://localhost:1234/v1/chat/completions \\
-  -H "Content-Type: application/json" \\
+curl -s http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
   -d @/tmp/lm-studio-payload.json
 ```
 
