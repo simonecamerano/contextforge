@@ -27,7 +27,7 @@ trigger: always_on
 > 3. **Usa ContextForge come mappa di routing del contesto.** La mappa serve a scegliere quali file reali leggere o passare agli agenti, non sostituisce il codice sorgente.
 > 4. **Se non puoi o non vuoi rispettare una di queste regole, fermati e chiedi conferma a Simone prima di procedere.** Non aggirarla in silenzio — dichiara esplicitamente quale regola stai per violare e perché (es. "la delega a Claude CLI ha fallito per contesto troppo grande, vuoi che la implementi io o che la riprovi con un prompt più piccolo?"), poi aspetta la risposta. Non passare all'implementazione diretta come fallback automatico.
 
-For every programming task, Gemini executes the protocol described below before proposing a model. For destructive, multi-file, architectural, dependency, deployment, git push/merge, or public API changes, Gemini must wait for Simone's explicit approval before executing. For low-risk read-only analysis, test execution, formatting checks, or trivial single-file fixes, Gemini may proceed after clearly stating the action.
+For every programming task, Pi executes the protocol described below before proposing a model. For destructive, multi-file, architectural, dependency, deployment, git push/merge, or public API changes, Pi must wait for Simone's explicit approval before executing. For low-risk read-only analysis, test execution, formatting checks, or trivial single-file fixes, Pi may proceed after clearly stating the action.
 
 ---
 
@@ -35,13 +35,12 @@ For every programming task, Gemini executes the protocol described below before 
 
 | Model | Role | Typical tasks | Fallback | Constraint |
 |---|---|---|---|---|
-| **Qwen (local)** | 🐴 Workhorse | Boilerplate, CRUD, standard components, light local refactoring | DeepSeek | None (local) |
-| **Claude Pro** | 🧠 Architect | Architecture, complex reasoning, multi-file debugging, code review, test design | Gemini Pro High | Rate limit |
-| **Gemini Pro High** | 🔭 Wide-context analyst | Full repo analysis, planning, roadmaps, long-context tasks | Claude | Rate limit |
-| **Gemini Flash** | ⚡ Sprinter | Simple tasks, quick answers, short docs, minor refactoring | Qwen local | Rate limit (higher) |
-| **Codex / GPT-4o** | 🎨 Designer | CSS, Tailwind, layouts, UI, transitions, visual frontend | Gemini Flash | Rate limit |
+| **Qwen (local via LM Studio)** | 🐴 Workhorse | Boilerplate, CRUD, standard components, light local refactoring | DeepSeek | None (local) |
+| **Claude Pro** | 🧠 Architect | Architecture, complex reasoning, multi-file debugging, code review, test design | DeepSeek | Rate limit |
+| **Codex / GPT-4o** | 🎨 Designer | CSS, Tailwind, layouts, UI, transitions, visual frontend | Qwen local | Rate limit |
 | **DeepSeek API** | 💡 Coding specialist | Advanced algorithms, optimization — use when genuinely the best fit | Qwen local | API cost (low) |
-| **Claude CLI / Codex CLI** | 🚜 Batch file editor | End-of-project batch cleanup, broad test expansion, docs, multi-file normalization, shell/Git workflow help | Simone decides manually | Request limit / sandbox risk |
+| **Claude CLI / Codex CLI** | 🚜 Batch file editor | End-of-project batch cleanup, broad test expansion, docs, multi-file normalization | Simone decides manually | Request limit / sandbox risk |
+| **Gemini (via \`agy\`)** | 🔍 Reviewer + shell/Git helper | Code review, shell command suggestions, Git workflow help | Claude CLI | Shares Google AI Pro quota — use sparingly, not as a free worker |
 
 ---
 
@@ -58,13 +57,13 @@ These categories should usually be postponed until Simone explicitly says the pr
 | Repo documentation | README, CHANGELOG, wiki, docs/ folder | Documentation required for the current deliverable or user-facing behavior change |
 | Global normalization | Multi-file style cleanup, global string replacement, light refactoring | A focused refactor required to safely complete the current task |
 
-> **Tool note:** Use Claude CLI or Codex CLI for batch file editing, broad docs, test generation, multi-file refactoring, and shell/Git workflow suggestions — they can read and edit files directly.
+> **Tool note:** Use Claude CLI or Codex CLI for batch file editing, broad docs, test generation, and multi-file refactoring — they can read and edit files directly. Use Gemini (via \`agy\`) for shell command and Git workflow suggestions.
 
 > **Transparency note:** When repo documentation becomes relevant during active development (e.g. wrapping up a setup phase, or Simone asks about docs), state explicitly that it is deferred to final cleanup — do not let it go unmentioned. Example: "README rinviato a fine progetto, verrà generato durante il final cleanup."
 
 ### Automatic instruction to include in model prompts
 
-Gemini includes this instruction in **every** prompt passed to other models:
+Pi includes this instruction in **every** prompt passed to other models:
 
 > When generating code for this task:
 > - Do NOT add routine comments or docstrings.
@@ -116,13 +115,28 @@ source venv/bin/activate && python3 ds.py "$(cat .contextforge/ai-brief.md)
 ---
 
 TASK: [PROMPT]"
+
+# Gemini (via Antigravity CLI — shares Google AI Pro quota, use only for review/shell-Git tasks)
+agy -p "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]"
+
+# Qwen local (LM Studio — requires \`lms server start\` running first; \`jq\` required, install via \`apt install jq\` if missing)
+jq -n --arg content "$(cat .contextforge/ai-brief.md)
+
+---
+
+TASK: [PROMPT]" '{"model": "[LM_STUDIO_MODEL_NAME]", "messages": [{"role": "user", "content": $content}]}' > /tmp/lm-studio-payload.json
+
+curl -s http://localhost:1234/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -d @/tmp/lm-studio-payload.json
 \`\`\`
 
-- **Qwen local**: run directly from Antigravity IDE (local Ollama) — paste \`ai-brief.md\` content manually in the context field
-- **Gemini**: run directly from Antigravity IDE
-
 **Strict Model Delegation Rule:**
-If a microtask is assigned to a model other than Gemini (i.e., Qwen, Claude, DeepSeek, Codex), Gemini **MUST NOT** write or modify files directly using its own generation capabilities. Gemini **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Gemini is strictly forbidden.
+If a microtask is assigned to a model other than Pi (i.e., Qwen, Claude, DeepSeek, Codex, Gemini), Pi **MUST NOT** write or modify files directly using its own generation capabilities. Pi **MUST** execute the specified CLI command or MCP tool to invoke the assigned model, obtain the generated output from that model, and then apply that specific output. Bypassing the selected model to implement the task directly as Pi is strictly forbidden.
 
 Se la CLI del modello delegato restituisce un errore (es. contesto troppo grande, rate limit, comando non trovato), questo NON è una licenza per implementare tu stesso. Fermati e applica HARD CONSTRAINT #4.
 
@@ -130,7 +144,7 @@ Se la CLI del modello delegato restituisce un errore (es. contesto troppo grande
 
 ## 4. 3-Step Protocol
 
-Gemini executes these 3 steps in sequence for every programming task before proposing a model.
+Pi executes these 3 steps in sequence for every programming task before proposing a model.
 
 ### Step 1 — Decompose
 
@@ -155,9 +169,10 @@ For each microtask (or the single task), apply the role table in Section 1.
 - Assign **Qwen (local)** ONLY for boilerplate, simple CRUD, standard components, or light local refactoring.
 - Assign **Claude Pro** or **DeepSeek** for complex logic, algorithms, state management, or multi-file debugging.
 - Assign **Codex / GPT-4o** for CSS, Tailwind, layouts, transitions, or visual frontend styling.
-- Assign **Claude CLI / Codex CLI** for end-of-project batch file editing and shell/Git workflow suggestions.
+- Assign **Claude CLI / Codex CLI** for end-of-project batch file editing.
+- Assign **Gemini (via agy)** for code review and shell/Git workflow help — use sparingly, it shares Google AI Pro quota.
 
-**Ambiguity rule:** if the task falls between two categories, choose the model with the lowest rate limit cost (priority: Qwen, then Gemini Flash, then others), unless correctness or security requires the stronger model.
+**Ambiguity rule:** if the task falls between two categories, choose the model with the lowest rate limit cost (priority: Qwen, then DeepSeek, then others), unless correctness or security requires the stronger model.
 
 ### Step 3 — Load check
 
@@ -168,9 +183,9 @@ Practical signals: throttling errors, slow responses, IDE warnings.
 - **NO → proceed with the chosen model**
 - **YES → activate the named fallback from the Role Table (Section 1)**
 
-Always state the reason: *"Claude seems close to its limit — using Gemini Pro High as fallback."*
+Always state the reason: *"Claude seems close to its limit — using DeepSeek as fallback."*
 
-If the fallback model is also rate-limited: drop to Qwen local (for coding tasks) or Gemini Flash (for anything else), then flag the situation to Simone.
+If the fallback model is also rate-limited: drop to Qwen local (for coding tasks) or DeepSeek (for anything else), then flag the situation to Simone.
 
 ---
 
@@ -243,7 +258,7 @@ Read when relevant:
 
 ContextForge is a map, not the implementation source of truth.
 
-Gemini uses ContextForge to identify relevant files and build focused prompts. The target model/agent MUST read the actual source files before modifying them or making detailed implementation claims.
+Pi uses ContextForge to identify relevant files and build focused prompts. The target model/agent MUST read the actual source files before modifying them or making detailed implementation claims.
 
 ### 7.4 Minimal but expandable context
 

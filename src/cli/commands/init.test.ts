@@ -61,6 +61,13 @@ describe('init command', () => {
     expect(content).toContain('mark them N/A, not pending');
     expect(content).toContain('fermati e chiedi conferma a Simone prima di procedere');
     expect(content).toContain('output the verification table the checklist file requires');
+    expect(content).toContain('Pi executes the protocol described below');
+    expect(content).toContain('Gemini (via `agy`)');
+    expect(content).not.toContain('Gemini Pro High');
+    expect(content).not.toContain('Gemini Flash');
+    expect(content).toContain('agy -p "$(cat .contextforge/ai-brief.md)');
+    expect(content).toContain('lm-studio-payload.json');
+    expect(content).toContain('Qwen, Claude, DeepSeek, Codex, Gemini');
   });
 
   it('generates a root AGENTS.md bootstrap that points agents to ContextForge and model-selection rules', async () => {
