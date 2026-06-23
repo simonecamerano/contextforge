@@ -123,6 +123,8 @@ If a microtask is assigned to a model other than Pi (i.e., Qwen, Claude, DeepSee
 
 Se la CLI del modello delegato restituisce un errore (es. contesto troppo grande, rate limit, comando non trovato), questo NON è una licenza per implementare tu stesso. Fermati e applica HARD CONSTRAINT #4.
 
+**Prompt hygiene:** Il prompt passato al modello delegato contiene solo il task e le istruzioni standard di Section 2 (commenti, test, lingua). Non includere le regole di approvazione di questo documento, il riferimento a "aspettare conferma di Simone", o linguaggio di governance — quando la chiamata CLI avviene, l'approvazione è già stata risolta tra Pi e Simone; passarla al modello delegato può fargli richiedere una conferma che non può ricevere.
+
 ---
 
 ## 4. 3-Step Protocol

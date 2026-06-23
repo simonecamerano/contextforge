@@ -63,6 +63,8 @@ describe('init command', () => {
     expect(content).toContain('output the verification table the checklist file requires');
     expect(content).toContain('Pi executes the protocol described below');
     expect(content).toContain('Gemini (via `agy`)');
+    expect(content).toContain('Prompt hygiene');
+    expect(content).toContain('Non includere le regole di approvazione di questo documento');
     expect(content).not.toContain('Gemini Pro High');
     expect(content).not.toContain('Gemini Flash');
     expect(content).toContain('agy -p "$(cat .contextforge/ai-brief.md)');
